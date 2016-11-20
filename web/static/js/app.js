@@ -24,4 +24,9 @@ let ruby_output_mirror = CodeMirror.fromTextArea(output_text_area, {
 
 ruby_code_mirror.setValue("def method\n  'cool'\nend")
 
-const run_code_button = document.getElementById('ruby-code-mirror')
+const run_code_button = document.getElementById('run-ruby-code')
+
+run_code_button.addEventListener('click', (event) => {
+  const code = ruby_code_mirror.getValue()
+  console.log(code)
+})
