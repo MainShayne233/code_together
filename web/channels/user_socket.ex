@@ -3,6 +3,7 @@ defmodule CodeTogether.UserSocket do
 
   ## Channels
   # channel "room:*", CodeTogether.RoomChannel
+  channel "code_room:*", CodeTogether.CodeRoomChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

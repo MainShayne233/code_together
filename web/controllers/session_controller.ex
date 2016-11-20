@@ -1,5 +1,6 @@
 defmodule CodeTogether.SessionController do
   use CodeTogether.Web, :controller
+  alias CodeTogether.DockerImage
 
   def start(conn, _params) do
     case current_username(conn) do

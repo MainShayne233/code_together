@@ -1,0 +1,11 @@
+.code_room {
+  display: 'flex';
+}
+
+.code_board {
+  flex: 1;
+}
+
+.output {
+  flex: 1;
+}

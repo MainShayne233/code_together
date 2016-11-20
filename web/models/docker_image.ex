@@ -2,11 +2,12 @@ defmodule CodeTogether.DockerImage do
   alias CodeTogether.DockerImage
   alias CodeTogether.Repo
   use CodeTogether.Web, :model
+  import Ecto.Query
 
   schema "docker_images" do
     field :port, :integer
     field :name, :string
-
+    field :username, :string
     timestamps()
   end
 
@@ -15,13 +16,24 @@ defmodule CodeTogether.DockerImage do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:port, :name])
-    |> validate_required([:port, :name])
+    |> cast(params, [:port, :name, :username])
+    |> validate_required([:port, :name, :username])
   end
 
-  def create do
+  def username_available?(username) do
+    find_for(username) == []
+  end
+
+  def find_for(username) do
+    Repo.all(
+      from d in DockerImage,
+      where: d.username == ^username
+    )
+  end
+
+  def create_for(username) do
     {:ok, docker_image} = %DockerImage{}
-    |> changeset(new_image_params)
+    |> changeset(new_image_params(username))
     |> Repo.insert
     run docker_image
     docker_image.id
@@ -42,10 +54,11 @@ defmodule CodeTogether.DockerImage do
     end)
   end
 
-  def new_image_params do
+  def new_image_params(username) do
     %{
       name: new_name,
-      port: new_port
+      port: new_port,
+      username: username
     }
   end
 

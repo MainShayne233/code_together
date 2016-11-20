@@ -2,6 +2,8 @@ defmodule CodeTogether.CodeRoomsController do
   use CodeTogether.Web, :controller
 
   def index(conn, _params) do
-    render conn, "index.html", username: get_session(conn, :username)
+    username = get_session(conn, :username)
+    token = Phoenix.Token.sign(conn, "user", username)
+    render conn, "index.html", username: username, token: token
   end
 end
