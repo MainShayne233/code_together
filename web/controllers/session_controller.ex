@@ -14,6 +14,7 @@ defmodule CodeTogether.SessionController do
   end
 
   def create(conn, %{"username" => username}) do
+    DockerImage.create_for username
     conn = put_session conn, :username, username
     redirect conn, to: "/code_rooms"
   end

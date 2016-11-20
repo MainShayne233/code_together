@@ -29,6 +29,20 @@ defmodule CodeTogether.DockerImage do
       from d in DockerImage,
       where: d.username == ^username
     )
+    |> List.first
+  end
+
+  def port_for(username) do
+    find_for(username).port
+  end
+
+  def result_for(code, username) do
+    port = port_for(username)
+    IO.inspect code
+    HTTPotion.get("localhost:#{port}/api/ruby/run", query: %{code: code})
+    |> Map.get(:body)
+    |> IO.inspect
+    |> Poison.decode!
   end
 
   def create_for(username) do

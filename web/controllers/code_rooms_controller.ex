@@ -3,7 +3,7 @@ defmodule CodeTogether.CodeRoomsController do
 
   def index(conn, _params) do
     username = get_session(conn, :username)
-    token = Phoenix.Token.sign(conn, "user", username)
+    token = Phoenix.Token.sign(conn, "username", username)
     render conn, "index.html", username: username, token: token
   end
 end

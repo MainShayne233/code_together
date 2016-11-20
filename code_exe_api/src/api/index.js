@@ -7,7 +7,7 @@ export default ({ config, db }) => {
 	let api = Router();
 
 	api.get('/ruby/run', (req, res) => {
-		const code = req.body.code
+		const code = req.query.code
 		const ruby_result = rubyExe(code)
 		res.json(ruby_result)
 	})
