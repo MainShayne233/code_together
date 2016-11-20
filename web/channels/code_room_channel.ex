@@ -3,6 +3,8 @@ defmodule CodeTogether.CodeRoomChannel do
   alias CodeTogether.DockerImage
   require Logger
 
+  intercept ["code_room:output_update"]
+
   def join("code_room:connect", _messaage, socket) do
     {:ok, socket}
   end
@@ -18,5 +20,10 @@ defmodule CodeTogether.CodeRoomChannel do
     {:noreply, socket}
   end
 
+  def handle_out("code_room:output_update", payload, socket) do
+    IO.puts "handle_out"
+    push socket, "code_room:output_update", payload
+    {:noreply, socket}
+  end
 
 end

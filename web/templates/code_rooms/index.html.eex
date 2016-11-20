@@ -1,29 +1,8 @@
 <div>
-  <%= "Hello #{@username}!" %>
-
-  <input
-    id="token"
-    type="hidden"
-    value=<%= @token %>
-  />
-</div>
-
-<div class='code_room' style='display:flex;'>
-  <div class='code_board'>
-    <textarea
-      id='ruby-code-mirror'
-      >
-    </textarea>
-    <button
-      id='run-ruby-code'
-      >
-      Run Code
+  <p><%="Hi #{@username}!"%></p>
+  <div id="homepage-container" style="display:flex;">
+    <button id="create-private-code-room">
+      Create private code room
     </button>
-  </div>
-  <div class='output'>
-    <textarea
-      id='ruby-output'
-      >
-    </textarea>
   </div>
 </div>

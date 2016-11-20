@@ -1,0 +1,29 @@
+<div>
+  <%= "Hello #{@username}!" %>
+
+  <input
+    id="token"
+    type="hidden"
+    value=<%= @token %>
+  />
+</div>
+
+<div class='code_room' style='display:flex;'>
+  <div class='code_board'>
+    <textarea
+      id='ruby-code-mirror'
+      >
+    </textarea>
+    <button
+      id='run-ruby-code'
+      >
+      Run Code
+    </button>
+  </div>
+  <div class='output'>
+    <textarea
+      id='ruby-output'
+      >
+    </textarea>
+  </div>
+</div>
