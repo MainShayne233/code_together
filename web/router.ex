@@ -20,16 +20,14 @@ defmodule CodeTogether.Router do
 
     resources "/code_rooms", CodeRoomsController
 
-    # get "/code_rooms", CodeRoomsController, :index
-    #
-    # get "code_rooms/new", CodeRoomsController, :new
 
     get "/session/new", SessionController, :new
     post "/session/create", SessionController, :create
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", CodeTogether do
-  #   pipe_through :api
-  # end
+  scope "/api", CodeTogether do
+    pipe_through :api
+    get "/code_rooms/:id/initial_data", CodeRoomsController, :initial_data
+  end
 end

@@ -18,9 +18,9 @@ defmodule CodeTogether.CodeRoomsController do
   def create(conn, %{"code_room" => %{"name" => name,
                                       "language" => language,
                                       "private" => "true"}}) do
-    case CodeRoom.create_private(name, language) do
+    case CodeRoom.create_private(name, String.downcase(language)) do
       {:ok, code_room} ->
-        DockerImage.create_for code_room
+
         redirect conn, to: code_rooms_path(conn, :show, code_room)
       {:error, :name_taken} ->
         IO.puts "name taken"
@@ -32,9 +32,14 @@ defmodule CodeTogether.CodeRoomsController do
 
   def show(conn, %{"id" => id}) do
     username = get_session conn, :username
-    token = Phoenix.Token.sign(conn, "code_room_id", code_room_id)
     code_room = Repo.get CodeRoom, id
-    render conn, "code_room.html", code_room: code_room, token: token
+    DockerImage.find_for(code_room) || DockerImage.create_for(code_room)
+    render conn, "code_room.html", code_room: code_room, username: username
+  end
+
+  def initial_data(conn, %{"id" => id}) do
+    code_room = Repo.get CodeRoom, id
+    json conn, %{language: code_room.language, code: code_room.code, output: code_room.output}
   end
 
 end

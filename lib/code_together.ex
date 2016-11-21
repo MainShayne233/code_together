@@ -1,4 +1,5 @@
 defmodule CodeTogether do
+  alias CodeTogether.DockerImage
   use Application
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
@@ -15,6 +16,8 @@ defmodule CodeTogether do
       # Start your own worker by calling: CodeTogether.Worker.start_link(arg1, arg2, arg3)
       # worker(CodeTogether.Worker, [arg1, arg2, arg3]),
     ]
+
+    DockerImage.build
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options

@@ -1,11 +1,10 @@
 defmodule CodeTogether.SessionController do
   use CodeTogether.Web, :controller
-  alias CodeTogether.DockerImage
 
   def start(conn, _params) do
     case current_username(conn) do
       nil -> redirect conn, to: "/session/new"
-      user -> redirect conn, to: "/code_rooms"
+      _user -> redirect conn, to: "/code_rooms"
     end
   end
 

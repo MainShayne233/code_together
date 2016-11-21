@@ -5,16 +5,22 @@
     value="code_room"
   />
   <input
-    id="token"
+    id="username"
     type="hidden"
-    value=<%= @token %>
+    value=<%= @username %>
   />
   <input
     id="language"
     type="hidden"
     value=<%= @code_room.language %>
+  />
 
-    <script src="<%= static_path(@conn, "/js/code_room.js") %>"></script>
+  <input
+    id="code-room-id"
+    type="hidden"
+    value=<%= @code_room.id %>
+  />
+
 </div>
 
 <div class='code_room' style='display:flex;'>

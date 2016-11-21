@@ -2,7 +2,6 @@ defmodule CodeTogether.DockerImage do
   alias CodeTogether.DockerImage
   alias CodeTogether.Repo
   use CodeTogether.Web, :model
-  import Ecto.Query
 
   schema "docker_images" do
     field :port,         :integer
@@ -20,17 +19,21 @@ defmodule CodeTogether.DockerImage do
     |> validate_required([:port, :name, :code_room_id])
   end
 
+  def build do
+    IO.puts "building docker image"
+    docker_cmd ["build", "-t", "code_exe_api", "./code_exe_api"]
+  end
+
   def find_for(code_room) do
-    Repo.get_by!(DockerImage, code_room_id: code_room.id)
+    Repo.get_by(DockerImage, code_room_id: code_room.id)
   end
 
   def port_for(code_room) do
     find_for(code_room).port
   end
 
-  def result_for(code, code_room) do
+  def result_for(code_room, code) do
     port = port_for(code_room)
-    IO.inspect code
     HTTPotion.get("localhost:#{port}/api/ruby/run", query: %{code: code})
     |> Map.get(:body)
     |> IO.inspect
