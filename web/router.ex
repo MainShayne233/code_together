@@ -18,7 +18,11 @@ defmodule CodeTogether.Router do
 
     get "/", SessionController, :start
 
-    get "/code_rooms", CodeRoomsController, :index
+    resources "/code_rooms", CodeRoomsController
+
+    # get "/code_rooms", CodeRoomsController, :index
+    #
+    # get "code_rooms/new", CodeRoomsController, :new
 
     get "/session/new", SessionController, :new
     post "/session/create", SessionController, :create

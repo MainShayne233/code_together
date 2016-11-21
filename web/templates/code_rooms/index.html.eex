@@ -1,8 +1,10 @@
 <div>
   <p><%="Hi #{@username}!"%></p>
   <div id="homepage-container" style="display:flex;">
-    <button id="create-private-code-room">
-      Create private code room
-    </button>
+    <a
+      href="code_rooms/new"
+      >
+      Create Code Room
+    </a>
   </div>
 </div>

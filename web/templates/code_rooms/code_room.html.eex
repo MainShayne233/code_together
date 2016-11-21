@@ -1,28 +1,37 @@
 <div>
-  <%= "Hello #{@username}!" %>
-
+  <input
+    id="page-name"
+    type="hidden"
+    value="code_room"
+  />
   <input
     id="token"
     type="hidden"
     value=<%= @token %>
   />
+  <input
+    id="language"
+    type="hidden"
+    value=<%= @code_room.language %>
+
+    <script src="<%= static_path(@conn, "/js/code_room.js") %>"></script>
 </div>
 
 <div class='code_room' style='display:flex;'>
   <div class='code_board'>
     <textarea
-      id='ruby-code-mirror'
+      id='code-mirror'
       >
     </textarea>
     <button
-      id='run-ruby-code'
+      id='run-code'
       >
       Run Code
     </button>
   </div>
   <div class='output'>
     <textarea
-      id='ruby-output'
+      id='output'
       >
     </textarea>
   </div>
