@@ -1,6 +1,8 @@
 defmodule CodeTogether.CodeRoomChannel do
   use Phoenix.Channel
   alias CodeTogether.DockerImage
+  alias CodeTogether.CodeRoom
+  alias CodeTogether.Repo
   require Logger
 
   intercept ["code_room:output_update"]
@@ -10,9 +12,10 @@ defmodule CodeTogether.CodeRoomChannel do
   end
 
   def handle_in("code_room:run", %{"code" => code, "token" => token}, socket) do
-    case Phoenix.Token.verify(socket, "username", token) do
-      {:ok, username} ->
-        result = DockerImage.result_for(code, username)
+    case Phoenix.Token.verify(socket, "code_room_id", token) do
+      {:ok, code_room_id} ->
+        code_room = Repo.get! CodeRoom, code_room_id
+        result = DockerImage.result_for(code, code_room)
         broadcast! socket, "code_room:output_update", %{output: result}
       _ ->
         IO.puts "invalid token"

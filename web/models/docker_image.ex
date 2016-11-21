@@ -5,9 +5,9 @@ defmodule CodeTogether.DockerImage do
   import Ecto.Query
 
   schema "docker_images" do
-    field :port, :integer
-    field :name, :string
-    field :username, :string
+    field :port,         :integer
+    field :name,         :string
+    field :code_room_id, :integer
     timestamps()
   end
 
@@ -16,28 +16,20 @@ defmodule CodeTogether.DockerImage do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:port, :name, :username])
-    |> validate_required([:port, :name, :username])
+    |> cast(params, [:port, :name, :code_room_id])
+    |> validate_required([:port, :name, :code_room_id])
   end
 
-  def username_available?(username) do
-    find_for(username) == []
+  def find_for(code_room) do
+    Repo.get_by!(DockerImage, code_room_id: code_room.id)
   end
 
-  def find_for(username) do
-    Repo.all(
-      from d in DockerImage,
-      where: d.username == ^username
-    )
-    |> List.first
+  def port_for(code_room) do
+    find_for(code_room).port
   end
 
-  def port_for(username) do
-    find_for(username).port
-  end
-
-  def result_for(code, username) do
-    port = port_for(username)
+  def result_for(code, code_room) do
+    port = port_for(code_room)
     IO.inspect code
     HTTPotion.get("localhost:#{port}/api/ruby/run", query: %{code: code})
     |> Map.get(:body)
@@ -45,9 +37,9 @@ defmodule CodeTogether.DockerImage do
     |> Poison.decode!
   end
 
-  def create_for(username) do
+  def create_for(code_room) do
     {:ok, docker_image} = %DockerImage{}
-    |> changeset(new_image_params(username))
+    |> changeset(new_image_params(code_room))
     |> Repo.insert
     run docker_image
     docker_image.id
@@ -68,11 +60,11 @@ defmodule CodeTogether.DockerImage do
     end)
   end
 
-  def new_image_params(username) do
+  def new_image_params(code_room) do
     %{
-      name: new_name,
-      port: new_port,
-      username: username
+      name:         new_name,
+      port:         new_port,
+      code_room_id: code_room.id
     }
   end
 
@@ -107,7 +99,7 @@ defmodule CodeTogether.DockerImage do
   def kill_many images do
     spawn fn ->
       docker_cmd ["stop"] ++ images
-      docker_cmd ["rm"] ++ images
+      docker_cmd ["rm"]   ++ images
       IO.puts "Killed: #{Enum.join(images, ", ")}"
     end
   end

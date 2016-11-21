@@ -1,6 +1,7 @@
 defmodule CodeTogether.CodeRoomsController do
   use CodeTogether.Web, :controller
   alias CodeTogether.CodeRoom
+  alias CodeTogether.DockerImage
   alias CodeTogether.Repo
 
   def index(conn, _params) do
@@ -19,6 +20,7 @@ defmodule CodeTogether.CodeRoomsController do
                                       "private" => "true"}}) do
     case CodeRoom.create_private(name, language) do
       {:ok, code_room} ->
+        DockerImage.create_for code_room
         redirect conn, to: code_rooms_path(conn, :show, code_room)
       {:error, :name_taken} ->
         IO.puts "name taken"
@@ -30,7 +32,7 @@ defmodule CodeTogether.CodeRoomsController do
 
   def show(conn, %{"id" => id}) do
     username = get_session conn, :username
-    token = Phoenix.Token.sign(conn, "username", username)
+    token = Phoenix.Token.sign(conn, "code_room_id", code_room_id)
     code_room = Repo.get CodeRoom, id
     render conn, "code_room.html", code_room: code_room, token: token
   end
