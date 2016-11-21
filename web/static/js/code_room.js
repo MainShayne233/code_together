@@ -37,6 +37,7 @@ function set_up_code_room(initial_data) {
   let code_mirror = CodeMirror.fromTextArea(code_text_area, {
     mode:        mode_name,
     lineNumbers: true,
+    lineWrapping: true,
     indentUnit:  4,
     tabSize:     4,
     theme: 'material',
@@ -49,6 +50,7 @@ function set_up_code_room(initial_data) {
 
   let output_mirror = CodeMirror.fromTextArea(output_text_area, {
     lineNumbers: true,
+    lineWrapping: true,
     indentUnit:  4,
     tabSize:     4,
     readOnly:    true,
@@ -58,8 +60,9 @@ function set_up_code_room(initial_data) {
 
   output_mirror.setSize(current_width, 500)
 
-
   output_mirror.setValue(initial_data.output)
+
+  scroll_to_bottom_of(output_mirror)
 
   // tell server someone typed some code
   code_mirror.on('keyup', event => {
@@ -99,6 +102,11 @@ function set_up_code_room(initial_data) {
     if (data.code_room_id === code_room_id) {
       const output = data.output
       output_mirror.setValue(output)
+      scroll_to_bottom_of(output_mirror)
     }
   })
+}
+
+function scroll_to_bottom_of(mirror) {
+  mirror.scrollTo(null, Infinity)
 }

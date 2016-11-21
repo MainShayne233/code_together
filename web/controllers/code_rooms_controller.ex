@@ -20,20 +20,22 @@ defmodule CodeTogether.CodeRoomsController do
                                       "private" => "true"}}) do
     case CodeRoom.create_private(name, String.downcase(language)) do
       {:ok, code_room} ->
-
-        redirect conn, to: code_rooms_path(conn, :show, code_room)
+        redirect conn, to: "/code_rooms/#{code_room.private_key}"
       {:error, :name_taken} ->
         IO.puts "name taken"
-      _ ->
-      IO.puts "other error"
+      other_error ->
+      IO.inspect other_error
     end
 
   end
 
-  def show(conn, %{"id" => id}) do
+  def show(conn, %{"private_key" => private_key}) do
     username = get_session conn, :username
-    code_room = Repo.get CodeRoom, id
-    DockerImage.find_for(code_room) || DockerImage.create_for(code_room)
+    code_room = Repo.get_by CodeRoom, private_key: private_key
+    case DockerImage.find_for(code_room) do
+      nil -> DockerImage.create_for(code_room)
+      docker_image -> DockerImage.run(docker_image)
+    end
     render conn, "code_room.html", code_room: code_room, username: username
   end
 

@@ -23,6 +23,8 @@
 
 </div>
 
+<h1><%= @code_room.name %></h1>
+
 <div class='code_room' style='display:flex;'>
   <div class='code_board'>
     <textarea

@@ -17,8 +17,8 @@ defmodule CodeTogether.CodeRoom do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:language, :name, :code, :output])
-    |> validate_required([:language, :name, :code, :output])
+    |> cast(params, [:language, :name, :code, :output, :private_key])
+    |> validate_required([:language, :name, :code, :output, :private_key])
   end
 
   def create_private(name, language) do
@@ -28,7 +28,8 @@ defmodule CodeTogether.CodeRoom do
         name: name,
         language: language,
         private_key: new_private_key,
-        code: default_code_for(language)
+        code: default_code_for(language),
+        output: default_output_for(language)
       })
       |> Repo.insert
     else
@@ -36,26 +37,21 @@ defmodule CodeTogether.CodeRoom do
     end
   end
 
-  def update(code_room, %{output: output}) do
-    changeset(code_room, %{output: truncate(output)})
+  def update(code_room, params) do
+    changeset(code_room,params)
     |> Repo.update
   end
 
   def truncate(output) do
-    lines = String.split output, "\n"
-    line_count = Enum.count(lines)
-    if line_count > 25 do
-      Enum.slice(lines, line_count-26, line_count-1)
+    character_count = String.length output
+    if character_count > max_output_char_count do
+      String.slice(output, character_count - max_output_char_count, character_count)
     else
-      lines
+      output
     end
-    |> Enum.join("\n")
   end
 
-  def update(code_room, %{code: code}) do
-    changeset(code_room, %{code: code})
-    |> Repo.update
-  end
+  def max_output_char_count, do: 6000
 
   def taken?(name) do
     find_for(name) == nil
@@ -81,4 +77,6 @@ defmodule CodeTogether.CodeRoom do
     "self == self.reverse\n  " <>
     "end\nend\n\n'racecar'.palindrome?"
   end
+
+  def default_output_for("ruby"), do: "=> true"
 end

@@ -20,7 +20,7 @@ defmodule CodeTogether.CodeRoomChannel do
   def handle_in("code_room:run", %{"code" => code, "code_room_id" => code_room_id}, socket) do
     code_room = Repo.get! CodeRoom, code_room_id
     result = DockerImage.result_for(code_room, code)
-    updated_output = code_room.output <> "\n" <> result
+    updated_output = CodeRoom.truncate(code_room.output <> "\n" <> result)
     broadcast! socket, "code_room:output_update", %{output: updated_output, code_room_id: code_room_id}
     CodeRoom.update(code_room, %{output: updated_output})
     {:noreply, socket}
