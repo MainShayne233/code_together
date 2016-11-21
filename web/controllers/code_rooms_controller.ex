@@ -10,6 +10,7 @@ defmodule CodeTogether.CodeRoomsController do
   end
 
   def new(conn, _params) do
+    IO.puts "hi"
     username = get_session(conn, :username)
     changeset = CodeRoom.changeset(%CodeRoom{})
     render conn, "new.html", username: username, changeset: changeset
@@ -20,7 +21,7 @@ defmodule CodeTogether.CodeRoomsController do
                                       "private" => "true"}}) do
     case CodeRoom.create_private(name, String.downcase(language)) do
       {:ok, code_room} ->
-        redirect conn, to: "/code_rooms/#{code_room.private_key}"
+        redirect conn, to: "/code_rooms/private/#{code_room.private_key}"
       {:error, :name_taken} ->
         IO.puts "name taken"
       other_error ->

@@ -17,8 +17,8 @@ defmodule CodeTogether.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", SessionController, :start
-    
-    get "/code_rooms/:private_key", CodeRoomsController, :show
+
+    get "/code_rooms/private/:private_key", CodeRoomsController, :show
     resources "/code_rooms", CodeRoomsController
 
     get "/session/new", SessionController, :new

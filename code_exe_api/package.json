@@ -39,6 +39,7 @@
     "express": "^4.13.3",
     "lodash": "^4.16.6",
     "mongodb": "^2.2.11",
+    "querystring": "^0.2.0",
     "resource-router-middleware": "^0.5.1"
   },
   "devDependencies": {

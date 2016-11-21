@@ -10,7 +10,6 @@ const code_room_id     = document.getElementById('code-room-id').value.trim()
 const code_text_area   = document.getElementById('code-mirror')
 const output_text_area = document.getElementById('output')
 const run_code_button  = document.getElementById('run-code')
-
 const XHR = new XMLHttpRequest()
 XHR.onreadystatechange = () => {
   if (XHR.readyState === 4 && XHR.status === 200) {
