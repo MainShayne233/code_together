@@ -4,6 +4,8 @@ defmodule CodeTogether.CodeRoomsController do
   alias CodeTogether.DockerImage
   alias CodeTogether.Repo
 
+  plug CodeTogether.Plug.Session when action in [:index, :new, :create, :show]
+
   def index(conn, _params) do
     username = get_session(conn, :username)
     render conn, "index.html", username: username
@@ -37,6 +39,17 @@ defmodule CodeTogether.CodeRoomsController do
       docker_image -> DockerImage.run(docker_image)
     end
     render conn, "code_room.html", code_room: code_room, username: username
+  end
+
+  def validate_name(conn, %{"name" => "empty_name"}) do
+    json conn, %{error: "Code room name is blank"}
+  end
+
+  def validate_name(conn, %{"name" => name}) do
+    case CodeRoom.validate_name(name) do
+      {:error, error} -> json conn, %{error: error}
+      {:ok, _} -> json conn, %{}
+    end
   end
 
   def initial_data(conn, %{"id" => id}) do

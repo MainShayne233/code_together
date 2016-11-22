@@ -3,7 +3,7 @@
   id="page-name"
   value="new"
 />
-
+<p id="new-code-room-error"></p>
 <%= form_for @changeset, code_rooms_path(@conn, :create), [id: "new-code-room-form"], fn f -> %>
   <label>
     Name: <%= text_input f, :name %>
@@ -14,5 +14,5 @@
   <label>
     Private: <%= select f, :private, [true] %>
   </label>
-  <%= submit "Submit", [id: "new-code-room-submit"] %>
+  <%= submit "Submit" %>
 <% end %>

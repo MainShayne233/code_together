@@ -29,5 +29,6 @@ defmodule CodeTogether.Router do
   scope "/api", CodeTogether do
     pipe_through :api
     get "/code_rooms/:id/initial_data", CodeRoomsController, :initial_data
+    get "/code_rooms/validate_name/:name", CodeRoomsController, :validate_name
   end
 end

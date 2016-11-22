@@ -1,14 +1,24 @@
-// const form =   document.getElementById("new-code-room-form")
-// const submit = document.getElementById('new-code-room-submit')
-//
-// console.log('set')
-// submit.addEventListener('click', (event) => {
-//   // event.preventDefault()
-//   XHR.onreadystatechange = () => {
-//     if (XHR.readyState === 4 && XHR.status === 200) {
-//       const  = JSON.parse(XHR.responseText)
-//     }
-//   }
-//   XHR.open("GET", `/api/code_rooms/${code_room_id}/initial_data`, true)
-//   XHR.send(null)
-// })
+const form       = document.getElementById("new-code-room-form")
+const form_error = document.getElementById('new-code-room-error')
+
+form.addEventListener('submit', (event) => {
+  event.preventDefault()
+  validate_name()
+})
+
+function validate_name() {
+  const name = form.elements['code_room_name'].value
+  const XHR = new XMLHttpRequest()
+  XHR.onreadystatechange = () => {
+    if (XHR.readyState === 4 && XHR.status === 200) {
+      const response = JSON.parse(XHR.responseText)
+      response.error ? show_error(response.error) : form.submit()
+    }
+  }
+  XHR.open("GET", `/api/code_rooms/validate_name/${name || 'empty_name'}`, true)
+  XHR.send(null)
+}
+
+function show_error(error) {
+  form_error.innerHTML = error
+}

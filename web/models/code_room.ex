@@ -22,7 +22,7 @@ defmodule CodeTogether.CodeRoom do
   end
 
   def create_private(name, language) do
-    if taken?(name) do
+    if available?(name) do
       %CodeRoom{}
       |> changeset(%{
         name: name,
@@ -53,8 +53,19 @@ defmodule CodeTogether.CodeRoom do
 
   def max_output_char_count, do: 6000
 
-  def taken?(name) do
+  def validate_name(name) do
+    cond do
+      taken?(name) -> {:error, "There is already a code room named #{name}"}
+      true ->         {:ok,    "name is valid"}
+    end
+  end
+
+  def available?(name) do
     find_for(name) == nil
+  end
+
+  def taken?(name) do
+    !available?(name)
   end
 
   def find_for(name) do
