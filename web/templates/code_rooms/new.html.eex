@@ -1,4 +1,10 @@
-<%= form_for @changeset, code_rooms_path(@conn, :create), fn f -> %>
+<input
+  type="hidden"
+  id="page-name"
+  value="new"
+/>
+
+<%= form_for @changeset, code_rooms_path(@conn, :create), [id: "new-code-room-form"], fn f -> %>
   <label>
     Name: <%= text_input f, :name %>
   </label>
@@ -8,5 +14,5 @@
   <label>
     Private: <%= select f, :private, [true] %>
   </label>
-  <%= submit "Submit" %>
+  <%= submit "Submit", [id: "new-code-room-submit"] %>
 <% end %>

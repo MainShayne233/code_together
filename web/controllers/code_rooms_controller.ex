@@ -10,7 +10,6 @@ defmodule CodeTogether.CodeRoomsController do
   end
 
   def new(conn, _params) do
-    IO.puts "hi"
     username = get_session(conn, :username)
     changeset = CodeRoom.changeset(%CodeRoom{})
     render conn, "new.html", username: username, changeset: changeset
