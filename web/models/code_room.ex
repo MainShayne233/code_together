@@ -21,6 +21,55 @@ defmodule CodeTogether.CodeRoom do
     |> validate_required([:language, :name, :code, :output, :private_key])
   end
 
+  def validate_name(name) do
+    [
+      validate_uniq(name, :name),
+      validate_length(name, :name)
+    ]
+    |> validity_check
+  end
+
+  def validity_check(validations) do
+    case error_list(validations) do
+      [] -> {:ok, "valid"}
+      errors -> {:error, errors}
+    end
+  end
+
+  def error_list(validations) do
+    Enum.filter_map(validations, fn (validation) ->
+      case validation do
+        {:error, _} -> true
+        _ -> false
+      end
+    end,
+    fn (error) ->
+      {:error, message} = error
+      message
+    end)
+  end
+
+  def validate_uniq(value, field) do
+    case Repo.get_by(CodeRoom, %{field => value}) do
+      nil -> {:ok, "#{field} is uniq"}
+      _   -> {:error, "There is already a code room with a #{field}: #{value}"}
+    end
+  end
+
+  def validate_length(value, field) do
+    {min, max} = valid_lengths_for(field)
+    cond do
+      String.length(value) < min ->
+        {:error, "#{field} must at least #{min} character(s) in length"}
+      String.length(value) > max ->
+        {:error, "#{field} cannot exceed #{max} character(s) in length"}
+      true ->
+        {:ok, "#{field} is of proper length"}
+    end
+  end
+
+  def valid_lengths_for(:name), do: {1, 50}
+
   def create_private(name, language) do
     if available?(name) do
       %CodeRoom{}
@@ -52,13 +101,6 @@ defmodule CodeTogether.CodeRoom do
   end
 
   def max_output_char_count, do: 6000
-
-  def validate_name(name) do
-    cond do
-      taken?(name) -> {:error, "There is already a code room named #{name}"}
-      true ->         {:ok,    "name is valid"}
-    end
-  end
 
   def available?(name) do
     find_for(name) == nil

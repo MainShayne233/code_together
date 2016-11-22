@@ -41,10 +41,6 @@ defmodule CodeTogether.CodeRoomsController do
     render conn, "code_room.html", code_room: code_room, username: username
   end
 
-  def validate_name(conn, %{"name" => "empty_name"}) do
-    json conn, %{error: "Code room name is blank"}
-  end
-
   def validate_name(conn, %{"name" => name}) do
     case CodeRoom.validate_name(name) do
       {:error, error} -> json conn, %{error: error}
