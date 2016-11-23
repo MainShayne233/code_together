@@ -6,8 +6,14 @@ defmodule CodeTogether.CodeRoomChannel do
   require Logger
 
 
-  def join("code_room:connect", _messaage, socket) do
+  def join("code_room:connect", _message, socket) do
     {:ok, socket}
+  end
+
+  def handle_in("code_room:prepare", %{"code_room_id" => code_room_id}, socket) do
+    code_room = Repo.get! CodeRoom, code_room_id
+    DockerImage.notify_when_running(code_room, socket)
+    {:noreply, socket}
   end
 
   def handle_in("code_room:new_code", %{"code" => code, "code_room_id" => code_room_id, "username" => username}, socket) do

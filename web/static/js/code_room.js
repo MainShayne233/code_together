@@ -1,15 +1,43 @@
 import "phoenix_html"
-import {
-  socket,
-  channel,
-} from "./socket"
 import CodeMirror from 'codemirror'
+import { default as swal } from 'sweetalert2'
+import {Socket} from "phoenix"
 
 const username         = document.getElementById('username').value.trim()
 const code_room_id     = document.getElementById('code-room-id').value.trim()
 const code_text_area   = document.getElementById('code-mirror')
 const output_text_area = document.getElementById('output')
 const run_code_button  = document.getElementById('run-code')
+
+let socket = new Socket("/socket", {params: {token: window.userToken}})
+
+socket.connect()
+
+let channel = socket.channel("code_room:connect", {})
+
+channel.join()
+  .receive("ok", resp => { console.log("Joined successfully", resp) })
+  .receive("error", resp => { console.log("Unable to join", resp) })
+
+channel.push("code_room:prepare", {
+  code_room_id: code_room_id
+})
+
+channel.on("code_room:not_ready", data => {
+  if (!swal.isVisible()) {
+    swal({
+      text: 'Setting up your dev environment',
+      confirmButtonText: 'Cool',
+      showLoaderOnConfirm: true,
+    })
+    swal.showLoading()
+  }
+})
+
+channel.on("code_room:ready", data => {
+  swal.close()
+})
+
 const XHR = new XMLHttpRequest()
 XHR.onreadystatechange = () => {
   if (XHR.readyState === 4 && XHR.status === 200) {

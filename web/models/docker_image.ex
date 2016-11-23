@@ -2,6 +2,8 @@ defmodule CodeTogether.DockerImage do
   alias CodeTogether.DockerImage
   alias CodeTogether.Repo
   use CodeTogether.Web, :model
+  use Phoenix.Channel
+  require Logger
 
   schema "docker_images" do
     field :port,         :integer
@@ -34,10 +36,14 @@ defmodule CodeTogether.DockerImage do
 
   def result_for(code_room, code) do
     port = port_for(code_room)
-    HTTPotion.get("localhost:#{port}/api/ruby/run", query: %{code: code})
+    result = HTTPotion.get("localhost:#{port}/api/ruby/run", query: %{code: code})
     |> Map.get(:body)
     |> IO.inspect
-    |> Poison.decode!
+    IO.inspect "result"
+    case result do
+      nil -> ""
+      response -> Poison.decode! response
+    end
   end
 
   def create_for(code_room) do
@@ -46,6 +52,20 @@ defmodule CodeTogether.DockerImage do
     |> Repo.insert
     run docker_image
     docker_image.id
+  end
+
+  def notify_when_running(code_room, socket) do
+    spawn fn ->
+      result = result_for(code_room, "'working'")
+      cond do
+        String.contains?(result, "working") ->
+          broadcast! socket, "code_room:ready", %{}
+        true ->
+          broadcast! socket, "code_room:not_ready", %{}
+          :timer.sleep(500)
+          notify_when_running(code_room, socket)
+      end
+    end
   end
 
   def run(docker_image) do
