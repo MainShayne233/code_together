@@ -13,18 +13,16 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 
 socket.connect()
 
-let channel = socket.channel("code_room:connect", {})
+let channel = socket.channel("code_room:connect", {code_room_id: code_room_id})
 
 channel.join()
-  .receive("ok", resp => { console.log("Joined successfully", resp) })
+  .receive("ok",    resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
 
-channel.push("code_room:prepare", {
-  code_room_id: code_room_id
-})
+channel.push("code_room:prepare", {})
 
 channel.on("code_room:not_ready", data => {
-  if (data.code_room_id === code_room_id && !swal.isVisible()) {
+  if (!swal.isVisible()) {
     swal({
       text: data.message,
       confirmButtonText: 'Cool',
@@ -93,7 +91,6 @@ function set_up_code_room(initial_data) {
     const code = code_mirror.getValue()
     channel.push('code_room:new_code', {
       code: code,
-      code_room_id: code_room_id,
       username: username,
     })
   })
@@ -109,8 +106,7 @@ function set_up_code_room(initial_data) {
   })
 
   function needs_update(data) {
-    return data.code_room_id === code_room_id &&
-           data.username     !== username     &&
+    return data.username     !== username     &&
            data.code         !== code_mirror.getValue()
   }
 
@@ -118,16 +114,13 @@ function set_up_code_room(initial_data) {
     const code = code_mirror.getValue()
     channel.push('code_room:run', {
       code: code,
-      code_room_id: code_room_id,
     })
   })
 
   channel.on("code_room:output_update", data => {
-    if (data.code_room_id === code_room_id) {
-      const output = data.output
-      output_mirror.setValue(output)
-      scroll_to_bottom_of(output_mirror)
-    }
+    const output = data.output
+    output_mirror.setValue(output)
+    scroll_to_bottom_of(output_mirror)
   })
 }
 

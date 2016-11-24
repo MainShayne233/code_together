@@ -133,7 +133,7 @@ defmodule CodeTogether.CodeRoom do
   def notify_when_running(code_room, socket, message \\ "Setting up dev environment") do
     spawn fn ->
       if docker_is_running?(code_room) do
-        broadcast! socket, "code_room:ready", %{}
+        broadcast! socket, "code_room:ready", %{code_room_id: code_room.id}
       else
         data = %{message: message, code_room_id: code_room.id}
         broadcast! socket, "code_room:not_ready", data

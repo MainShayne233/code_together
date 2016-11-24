@@ -4,25 +4,44 @@ defmodule CodeTogether.CodeRoomChannel do
   alias CodeTogether.Repo
   require Logger
 
+  intercept [
+    "code_room:code_update",
+    "code_room:output_update",
+    "code_room:not_ready",
+    "code_room:ready"
+  ]
 
-  def join("code_room:connect", _message, socket) do
+  def join("code_room:connect", %{"code_room_id" => code_room_id}, socket) do
+    socket = assign(socket, :code_room_id, code_room_id)
     {:ok, socket}
   end
 
-  def handle_in("code_room:prepare", %{"code_room_id" => code_room_id}, socket) do
+  def handle_in("code_room:prepare", _message, socket) do
+    code_room_id = socket.assigns[:code_room_id]
     code_room = Repo.get! CodeRoom, code_room_id
     CodeRoom.notify_when_running(code_room, socket)
     {:noreply, socket}
   end
 
-  def handle_in("code_room:new_code", %{"code" => code, "code_room_id" => code_room_id, "username" => username}, socket) do
+  def handle_in("code_room:new_code", %{"code" => code, "username" => username}, socket) do
+    code_room_id = socket.assigns[:code_room_id]
     code_room = Repo.get! CodeRoom, code_room_id
-    broadcast! socket, "code_room:code_update", %{code: code, code_room_id: code_room_id, username: username}
+    data = %{code: code, code_room_id: code_room_id, username: username}
+    broadcast! socket, "code_room:code_update", data
     CodeRoom.update(code_room, %{code: code})
     {:noreply, socket}
   end
 
-  def handle_in("code_room:run", %{"code" => code, "code_room_id" => code_room_id}, socket) do
+  def handle_out(room_and_topic, payload, socket) do
+    user_code_room_id = socket.assigns[:code_room_id]
+    if payload.code_room_id == user_code_room_id do
+      push socket, room_and_topic, payload
+    end
+    {:noreply, socket}
+  end
+
+  def handle_in("code_room:run", %{"code" => code}, socket) do
+    code_room_id = socket.assigns[:code_room_id]
     code_room = Repo.get! CodeRoom, code_room_id
     result = CodeRoom.result_for(code_room, code)
     updated_output = CodeRoom.truncate(code_room.output <> "\n" <> result)
