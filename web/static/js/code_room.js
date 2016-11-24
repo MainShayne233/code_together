@@ -70,11 +70,6 @@ function set_up_code_room(initial_data) {
     theme: 'material',
   })
 
-  const current_width = code_mirror.display.lastWrapWidth
-  code_mirror.setSize(current_width, 500)
-
-  code_mirror.setValue(initial_data.code)
-
   let output_mirror = CodeMirror.fromTextArea(output_text_area, {
     lineNumbers: true,
     lineWrapping: true,
@@ -85,8 +80,10 @@ function set_up_code_room(initial_data) {
     mode: '',
   })
 
-  output_mirror.setSize(current_width, 500)
+  code_mirror.setSize('auto', 400)
+  output_mirror.setSize('auto', 400)
 
+  code_mirror.setValue(initial_data.code)
   output_mirror.setValue(initial_data.output)
 
   scroll_to_bottom_of(output_mirror)
