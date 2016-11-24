@@ -1,5 +1,5 @@
 defmodule CodeTogether do
-  alias CodeTogether.DockerImage
+  alias CodeTogether.CodeRoom
   use Application
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
@@ -17,7 +17,7 @@ defmodule CodeTogether do
       # worker(CodeTogether.Worker, [arg1, arg2, arg3]),
     ]
 
-    DockerImage.build
+    CodeRoom.build_image!
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options

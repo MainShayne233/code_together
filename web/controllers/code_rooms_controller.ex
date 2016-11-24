@@ -1,7 +1,6 @@
 defmodule CodeTogether.CodeRoomsController do
   use CodeTogether.Web, :controller
   alias CodeTogether.CodeRoom
-  alias CodeTogether.DockerImage
   alias CodeTogether.Repo
 
   plug CodeTogether.Plug.Session when action in [:index, :new, :create, :show]
@@ -34,10 +33,7 @@ defmodule CodeTogether.CodeRoomsController do
   def show(conn, %{"private_key" => private_key}) do
     username = get_session conn, :username
     code_room = Repo.get_by CodeRoom, private_key: private_key
-    case DockerImage.find_for(code_room) do
-      nil -> DockerImage.create_for(code_room)
-      docker_image -> DockerImage.run(docker_image)
-    end
+    unless CodeRoom.docker_is_running?(code_room), do: CodeRoom.start_docker(code_room)
     render conn, "code_room.html", code_room: code_room, username: username
   end
 

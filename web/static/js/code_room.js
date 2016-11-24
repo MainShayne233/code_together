@@ -4,7 +4,7 @@ import { default as swal } from 'sweetalert2'
 import {Socket} from "phoenix"
 
 const username         = document.getElementById('username').value.trim()
-const code_room_id     = document.getElementById('code-room-id').value.trim()
+const code_room_id     = parseInt(document.getElementById('code-room-id').value.trim())
 const code_text_area   = document.getElementById('code-mirror')
 const output_text_area = document.getElementById('output')
 const run_code_button  = document.getElementById('run-code')
@@ -24,9 +24,9 @@ channel.push("code_room:prepare", {
 })
 
 channel.on("code_room:not_ready", data => {
-  if (!swal.isVisible()) {
+  if (data.code_room_id === code_room_id && !swal.isVisible()) {
     swal({
-      text: 'Setting up your dev environment',
+      text: data.message,
       confirmButtonText: 'Cool',
       showLoaderOnConfirm: true,
     })
