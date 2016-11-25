@@ -21,8 +21,21 @@ defmodule CodeTogether.CodeRoom do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:language, :name, :code, :output, :private_key, :docker_name, :port, :current_users])
-    |> validate_required([:language, :name, :code, :output, :private_key, :docker_name, :port, :current_users])
+    |> cast(params, all_fields)
+    |> validate_required(all_fields)
+  end
+
+  def all_fields do
+    [
+      :language,
+      :name,
+      :code,
+      :output,
+      :private_key,
+      :docker_name,
+      :port,
+      :current_users
+    ]
   end
 
   def validate_name(name) do
@@ -201,11 +214,11 @@ defmodule CodeTogether.CodeRoom do
   end
 
   def execute(code_room, code) do
-    result = "localhost:#{code_room.port}/api/ruby/run"
+    "localhost:#{code_room.port}/api/ruby/run"
     |> HTTPotion.get(query: %{code: code})
-    |> Map.get(:body)
-
-    case Poison.decode(result || "") do
+    |> Map.get_lazy(:body, fn -> "" end)
+    |> Poison.decode
+    |> case do
       {:ok, response} -> response
       {:error, _} -> "There was an issue executing the code"
     end
