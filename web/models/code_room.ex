@@ -1,6 +1,7 @@
 defmodule CodeTogether.CodeRoom do
   alias CodeTogether.CodeRoom
   alias CodeTogether.Repo
+  alias CodeTogether.Language
   use CodeTogether.Web, :model
   use Phoenix.Channel
 
@@ -93,8 +94,8 @@ defmodule CodeTogether.CodeRoom do
         name:          name,
         language:      language,
         private_key:   new_private_key,
-        code:          default_code_for(language),
-        output:        default_output_for(language),
+        code:          Language.default_code_for(language),
+        output:        Language.default_output_for(language),
         docker_name:   new_docker_name,
         port:          new_port,
         current_users: []
@@ -258,16 +259,8 @@ defmodule CodeTogether.CodeRoom do
     System.cmd "docker", args
   end
 
-  def default_code_for("ruby") do
-    "class String\n  "         <>
-    "def palindrome?\n    "    <>
-    "self == self.reverse\n  " <>
-    "end\nend\n\n'racecar'.palindrome?"
-  end
-
   def delete_all! do
     Repo.delete_all CodeRoom
   end
 
-  def default_output_for("ruby"), do: "=> true"
 end
