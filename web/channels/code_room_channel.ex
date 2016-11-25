@@ -16,19 +16,28 @@ defmodule CodeTogether.CodeRoomChannel do
     {:ok, socket}
   end
 
-  def handle_in("code_room:prepare", _message, socket) do
-    code_room_id = socket.assigns[:code_room_id]
-    code_room = Repo.get! CodeRoom, code_room_id
-    CodeRoom.notify_when_running(code_room, socket)
+  def terminate(_reason, socket) do
+    leaving_user = socket.assigns[:username]
+    socket.assigns[:code_room_id]
+    |> CodeRoom.get
+    |> CodeRoom.handle_leaving_user(leaving_user, socket)
+  end
+
+  def handle_in("code_room:prepare", %{"username" => username}, socket) do
+    socket = assign(socket, :username, username)
+    socket.assigns[:code_room_id]
+    |> CodeRoom.get
+    |> CodeRoom.notify_when_running(socket)
+    |> CodeRoom.add_user_and_notify_if_new(username, socket)
     {:noreply, socket}
   end
 
   def handle_in("code_room:new_code", %{"code" => code, "username" => username}, socket) do
     code_room_id = socket.assigns[:code_room_id]
-    code_room = Repo.get! CodeRoom, code_room_id
     data = %{code: code, code_room_id: code_room_id, username: username}
     broadcast! socket, "code_room:code_update", data
-    CodeRoom.update(code_room, %{code: code})
+    CodeRoom.get(code_room_id)
+    |> CodeRoom.update(%{code: code})
     {:noreply, socket}
   end
 
@@ -42,7 +51,7 @@ defmodule CodeTogether.CodeRoomChannel do
 
   def handle_in("code_room:run", %{"code" => code}, socket) do
     code_room_id = socket.assigns[:code_room_id]
-    code_room = Repo.get! CodeRoom, code_room_id
+    code_room = CodeRoom.get code_room_id
     result = CodeRoom.result_for(code_room, code)
     updated_output = CodeRoom.truncate(code_room.output <> "\n" <> result)
     broadcast! socket, "code_room:output_update", %{output: updated_output, code_room_id: code_room_id}

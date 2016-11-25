@@ -43,4 +43,10 @@
       >
     </textarea>
   </div>
+  <div class='current-users'>
+    <p>Current Users:</p>
+    <ul id="current-users-list">
+
+    </ul>
+  </div>
 </div>

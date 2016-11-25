@@ -3,11 +3,12 @@ import CodeMirror from 'codemirror'
 import { default as swal } from 'sweetalert2'
 import {Socket} from "phoenix"
 
-const username         = document.getElementById('username').value.trim()
-const code_room_id     = parseInt(document.getElementById('code-room-id').value.trim())
-const code_text_area   = document.getElementById('code-mirror')
-const output_text_area = document.getElementById('output')
-const run_code_button  = document.getElementById('run-code')
+const username           = document.getElementById('username').value.trim()
+const code_room_id       = parseInt(document.getElementById('code-room-id').value.trim())
+const code_text_area     = document.getElementById('code-mirror')
+const output_text_area   = document.getElementById('output')
+const run_code_button    = document.getElementById('run-code')
+const current_users_list = document.getElementById('current-users-list')
 
 let socket = new Socket("/socket", {params: {token: window.userToken}})
 
@@ -19,7 +20,12 @@ channel.join()
   .receive("ok",    resp => { console.log("Joined successfully", resp) })
   .receive("error", resp => { console.log("Unable to join", resp) })
 
-channel.push("code_room:prepare", {})
+channel.push("code_room:prepare", {username: username})
+
+channel.on("code_room:update_users", data => {
+  const current_users = data.current_users
+  update_users_list(current_users)
+})
 
 channel.on("code_room:not_ready", data => {
   if (!swal.isVisible()) {
@@ -122,6 +128,11 @@ function set_up_code_room(initial_data) {
     output_mirror.setValue(output)
     scroll_to_bottom_of(output_mirror)
   })
+}
+
+function update_users_list(usernames) {
+  const list_items = usernames.map(username => `<li>${username}</li>`)
+  current_users_list.innerHTML = list_items.join('')
 }
 
 function scroll_to_bottom_of(mirror) {

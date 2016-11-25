@@ -5,13 +5,14 @@ defmodule CodeTogether.CodeRoom do
   use Phoenix.Channel
 
   schema "code_rooms" do
-    field :language,    :string
-    field :name,        :string
-    field :private_key, :string
-    field :code,        :string
-    field :output,      :string
-    field :docker_name, :string
-    field :port,        :integer
+    field :language,      :string
+    field :name,          :string
+    field :private_key,   :string
+    field :code,          :string
+    field :output,        :string
+    field :docker_name,   :string
+    field :port,          :integer
+    field :current_users, {:array, :string}
     timestamps()
   end
 
@@ -20,8 +21,8 @@ defmodule CodeTogether.CodeRoom do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:language, :name, :code, :output, :private_key, :docker_name, :port])
-    |> validate_required([:language, :name, :code, :output, :private_key, :docker_name, :port])
+    |> cast(params, [:language, :name, :code, :output, :private_key, :docker_name, :port, :current_users])
+    |> validate_required([:language, :name, :code, :output, :private_key, :docker_name, :port, :current_users])
   end
 
   def validate_name(name) do
@@ -46,8 +47,7 @@ defmodule CodeTogether.CodeRoom do
         _ -> false
       end
     end,
-    fn (error) ->
-      {:error, message} = error
+    fn ({:error, message}) ->
       message
     end)
   end
@@ -77,24 +77,50 @@ defmodule CodeTogether.CodeRoom do
     if available?(name) do
       %CodeRoom{}
       |> changeset(%{
-        name:        name,
-        language:    language,
-        private_key: new_private_key,
-        code:        default_code_for(language),
-        output:      default_output_for(language),
-        docker_name: new_docker_name,
-        port:        new_port
+        name:          name,
+        language:      language,
+        private_key:   new_private_key,
+        code:          default_code_for(language),
+        output:        default_output_for(language),
+        docker_name:   new_docker_name,
+        port:          new_port,
+        current_users: []
       })
       |> Repo.insert
-      |> IO.inspect
     else
       {:error, :name_taken}
     end
   end
 
   def update(code_room, params) do
-    changeset(code_room,params)
+    changeset(code_room, params)
     |> Repo.update
+  end
+
+  def get(id) do
+    Repo.get CodeRoom, id
+  end
+
+  def add_user_and_notify_if_new(code_room, username, socket) do
+    spawn fn ->
+      unless Enum.find(code_room.current_users, &( &1 == username ) ) do
+        current_users = code_room.current_users ++ [username]
+        update_current_users(code_room, current_users, socket)
+      end
+    end
+    code_room
+  end
+
+  def update_current_users(code_room, current_users, socket) do
+    data = %{code_room_id: code_room.id, current_users: current_users}
+    broadcast! socket, "code_room:update_users", data
+    changeset(code_room, %{current_users: current_users})
+    |> Repo.update
+  end
+
+  def handle_leaving_user(code_room, leaving_user, socket) do
+    current_users = code_room.current_users -- [leaving_user]
+    update_current_users(code_room, current_users, socket)
   end
 
   def truncate(output) do
@@ -141,6 +167,7 @@ defmodule CodeTogether.CodeRoom do
         notify_when_running code_room, socket
       end
     end
+    code_room
   end
 
   def in_good_standing?(code_room) do
@@ -170,6 +197,7 @@ defmodule CodeTogether.CodeRoom do
        ]
        IO.puts "Started #{code_room.docker_name} on port #{code_room.port}"
     end)
+    code_room
   end
 
   def execute(code_room, code) do
@@ -200,7 +228,6 @@ defmodule CodeTogether.CodeRoom do
   end
 
   def current_ports do
-    IO.puts "current ports"
     Repo.all(CodeRoom)
     |> Enum.map(&(&1.port))
   end
@@ -211,6 +238,7 @@ defmodule CodeTogether.CodeRoom do
       docker_cmd ["rm",   code_room.docker_name]
       start_docker code_room
     end
+    code_room
   end
 
   def docker_cmd(args) do
