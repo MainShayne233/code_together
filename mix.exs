@@ -19,7 +19,7 @@ defmodule CodeTogether.Mixfile do
   def application do
     [mod: {CodeTogether, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :httpotion]]
+                    :phoenix_ecto, :postgrex, :httpotion, :calendar]]
   end
 
   # Specifies which paths to compile per environment.
@@ -40,7 +40,8 @@ defmodule CodeTogether.Mixfile do
       {:gettext, "~> 0.11"},
       {:cowboy, "~> 1.0"},
       {:httpotion, "~> 3.0.2"},
-      {:poison, ">= 1.0.0"}
+      {:poison, ">= 1.0.0"},
+      {:calendar, "~> 0.16.1"}
    ]
   end
 

@@ -4,6 +4,7 @@ defmodule CodeTogether.CodeRoom do
   alias CodeTogether.Language
   use CodeTogether.Web, :model
   use Phoenix.Channel
+  import Ecto.Query
 
   schema "code_rooms" do
     field :language,      :string
@@ -115,6 +116,35 @@ defmodule CodeTogether.CodeRoom do
     Repo.get CodeRoom, id
   end
 
+  def close(code_room) do
+    spawn fn ->
+      docker_cmd ["stop", code_room.docker_name]
+      docker_cmd ["rm",   code_room.docker_name]
+      Repo.delete code_room
+    end
+  end
+
+  def close_inactive_rooms do
+    inactive_rooms
+    |> Enum.each(fn code_room ->
+      IO.puts "Closing coderoom #{code_room.id} due to inactivity"
+      close code_room
+    end)
+  end
+
+  def inactive_rooms do
+    (from c in CodeRoom,
+    where: c.updated_at < ^fifteen_minutes_ago)
+    |> Repo.all
+  end
+
+  def fifteen_minutes_ago do
+    Calendar.DateTime.now_utc
+    |> Calendar.DateTime.subtract!(60 * 15)
+    |> Calendar.DateTime.to_erl
+    |> Ecto.DateTime.from_erl
+  end
+
   def add_user_and_notify_if_new(code_room, username, socket) do
     spawn fn ->
       unless Enum.find(code_room.current_users, &( &1 == username ) ) do
@@ -199,7 +229,7 @@ defmodule CodeTogether.CodeRoom do
   end
 
   def start_docker(code_room) do
-    spawn (fn ->
+    spawn fn ->
       docker_cmd [
         "run",
         "-p",
@@ -210,7 +240,7 @@ defmodule CodeTogether.CodeRoom do
         "code_exe_api"
        ]
        IO.puts "Started #{code_room.docker_name} on port #{code_room.port}"
-    end)
+    end
     code_room
   end
 
