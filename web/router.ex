@@ -18,6 +18,7 @@ defmodule CodeTogether.Router do
 
     get "/", SessionController, :start
 
+    get "/code_rooms/public/:name", CodeRoomsController, :show
     get "/code_rooms/private/:private_key", CodeRoomsController, :show
     resources "/code_rooms", CodeRoomsController
 

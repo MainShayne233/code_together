@@ -24,7 +24,7 @@ defmodule CodeTogether.CodeRoom do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, all_fields)
-    |> validate_required(all_fields)
+    |> validate_required(all_fields -- [:private_key])
   end
 
   def all_fields do
@@ -105,6 +105,31 @@ defmodule CodeTogether.CodeRoom do
     else
       {:error, :name_taken}
     end
+  end
+
+  def create_public(name, language) do
+    if available?(name) do
+      %CodeRoom{}
+      |> changeset(%{
+        name:          name,
+        language:      language,
+        private_key:   nil,
+        code:          Language.default_code_for(language),
+        output:        Language.default_output_for(language),
+        docker_name:   new_docker_name,
+        port:          new_port,
+        current_users: []
+      })
+      |> Repo.insert
+    else
+      {:error, :name_taken}
+    end
+  end
+
+  def all_public do
+    (from c in CodeRoom,
+    where: is_nil(c.private_key))
+    |> Repo.all
   end
 
   def update(code_room, params) do

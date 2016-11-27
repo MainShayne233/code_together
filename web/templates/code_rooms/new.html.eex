@@ -12,7 +12,7 @@
     Language: <%= select f, :language, ["Ruby"] %>
   </label>
   <label>
-    Private: <%= select f, :private, [true] %>
+    Private: <%= select f, :private, [true, false] %>
   </label>
   <%= submit "Submit" %>
 <% end %>

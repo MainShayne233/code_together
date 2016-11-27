@@ -7,6 +7,10 @@
 
 */
 
+.code-room-card-link {
+  font-size: 30px;
+}
+
 .cm-s-material {
   background-color: #263238;
   color: rgba(233, 237, 237, 1);

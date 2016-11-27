@@ -7,7 +7,7 @@ defmodule CodeTogether.CodeRoomsController do
 
   def index(conn, _params) do
     username = get_session(conn, :username)
-    render conn, "index.html", username: username
+    render conn, "index.html", username: username, public_code_rooms: CodeRoom.all_public
   end
 
   def new(conn, _params) do
@@ -30,9 +30,30 @@ defmodule CodeTogether.CodeRoomsController do
 
   end
 
+  def create(conn, %{"code_room" => %{"name" => name,
+                                      "language" => language,
+                                      "private" => "false"}}) do
+    case CodeRoom.create_public(name, String.downcase(language)) do
+      {:ok, code_room} ->
+        redirect conn, to: "/code_rooms/public/#{code_room.name}"
+      {:error, :name_taken} ->
+        IO.puts "name taken"
+      other_error ->
+      IO.inspect other_error
+    end
+
+  end
+
   def show(conn, %{"private_key" => private_key}) do
     username = get_session conn, :username
     code_room = Repo.get_by CodeRoom, private_key: private_key
+    unless CodeRoom.docker_is_running?(code_room), do: CodeRoom.start_docker(code_room)
+    render conn, "code_room.html", code_room: code_room, username: username
+  end
+
+  def show(conn, %{"name" => name}) do
+    username = get_session conn, :username
+    code_room = Repo.get_by CodeRoom, name: name
     unless CodeRoom.docker_is_running?(code_room), do: CodeRoom.start_docker(code_room)
     render conn, "code_room.html", code_room: code_room, username: username
   end

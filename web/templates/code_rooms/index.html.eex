@@ -1,10 +1,18 @@
 <div>
   <p><%="Hi #{@username}!"%></p>
   <div id="homepage-container" style="display:flex;">
-    <a
-      href="code_rooms/new"
-      >
-      Create Code Room
-    </a>
+    <div class="public-code-rooms-container">
+      <%= for code_room <- @public_code_rooms do %>
+        <div class="code-room-card">
+          <a
+            class="code-room-card-link"
+            href="code_rooms/public/<%=code_room.name%>"
+            >
+            <%= code_room.name %>
+          </a>
+        </div>
+      <% end %>
+    </div>
+    <a href="code_rooms/new">Create Code Room</a>
   </div>
 </div>
