@@ -318,4 +318,8 @@ defmodule CodeTogether.CodeRoom do
     Repo.delete_all CodeRoom
   end
 
+  def all do
+    Repo.all CodeTogether.CodeRoom
+  end
+
 end
