@@ -1,7 +1,6 @@
 defmodule CodeTogether.CodeRoomChannel do
   use Phoenix.Channel
   alias CodeTogether.CodeRoom
-  alias CodeTogether.Repo
   require Logger
 
   intercept [
