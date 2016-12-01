@@ -1,15 +1,19 @@
 <div>
   <p><%="Hi #{@username}!"%></p>
   <div id="homepage-container" style="display:flex;">
-    <div class="public-code-rooms-container">
+    <div class="ui relaxed divided list">
       <%= for code_room <- @public_code_rooms do %>
-        <div class="code-room-card">
-          <a
-            class="code-room-card-link"
-            href="code_rooms/public/<%=code_room.name%>"
-            >
-            <%= code_room.name %>
-          </a>
+        <div class="item">
+          <i class="icon"></i>
+          <div class="content">
+            <a
+              class="code-room-card-link"
+              href="code_rooms/public/<%=code_room.name%>"
+              >
+              <%= code_room.name %>
+            </a>
+            <div class="description"><%= code_room.language %></div>
+          </div>
         </div>
       <% end %>
     </div>

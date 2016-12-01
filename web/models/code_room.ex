@@ -239,10 +239,6 @@ defmodule CodeTogether.CodeRoom do
     code_room
   end
 
-  def in_good_standing?(code_room) do
-    docker_is_running? code_room
-  end
-
   def build_image! do
     IO.puts "building docker image"
     docker_cmd ["build", "-t", "code_exe_api", "./code_exe_api"]

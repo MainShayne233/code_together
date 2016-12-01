@@ -20,21 +20,41 @@ module.exports = {
       loader: "babel",
       include: __dirname,
       query: {
-        presets: ["es2015"]
-      }
+        presets: ["es2015"],
+      },
     },
     {
       test: /\.css$/,
-      loader: ExtractTextPlugin.extract("style", "css")
+      loader: ExtractTextPlugin.extract("style", "css"),
     },
     {
       test: /\.scss$/,
-      loader: ExtractTextPlugin.extract("style", "css!sass")
-    }]
+      loader: ExtractTextPlugin.extract("style", "css!sass"),
+    },
+    {
+      test: /\.svg/,
+      loader: 'svg-url-loader',
+    },
+    {
+      test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+      loader: "url-loader?limit=10000&mimetype=application/font-woff",
+    },
+    {
+      test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,
+      loader: "file",
+    },
+    {
+      test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/,
+      loader: "url?limit=10000&mimetype=application/octet-stream",
+    },
+    { test: /\.(png|jpg)$/,
+      loader: 'url-loader?prefix=assets/'
+    },
+  ]
   },
 
   plugins: [
     new ExtractTextPlugin("css/app.css"),
-    new CopyWebpackPlugin([{ from: "./web/static/assets" }])
+    new CopyWebpackPlugin([{ from: "./web/static/assets" }]),
   ]
 };

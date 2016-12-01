@@ -54,7 +54,7 @@ defmodule CodeTogether.CodeRoomChannel do
     result = CodeRoom.result_for(code_room, code)
     updated_output = CodeRoom.truncate(code_room.output <> "\n" <> result)
     broadcast! socket, "code_room:output_update", %{output: updated_output, code_room_id: code_room_id}
-    unless CodeRoom.in_good_standing?(code_room), do: CodeRoom.reset_and_notify(code_room, socket)
+    unless CodeRoom.docker_is_running?(code_room), do: CodeRoom.reset_and_notify(code_room, socket)
     CodeRoom.update(code_room, %{output: updated_output})
     {:noreply, socket}
   end

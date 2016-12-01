@@ -41,7 +41,8 @@ defmodule CodeTogether.Mixfile do
       {:cowboy, "~> 1.0"},
       {:httpotion, "~> 3.0.2"},
       {:poison, ">= 1.0.0"},
-      {:calendar, "~> 0.16.1"}
+      {:calendar, "~> 0.16.1"},
+      {:hound, "~> 1.0"}
    ]
   end
 
