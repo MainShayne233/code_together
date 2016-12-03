@@ -17,6 +17,6 @@
         </div>
       <% end %>
     </div>
-    <a href="code_rooms/new">Create Code Room</a>
+    <a id='create-code-room' href="code_rooms/new">Create Code Room</a>
   </div>
 </div>
