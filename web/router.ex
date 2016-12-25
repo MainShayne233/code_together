@@ -13,23 +13,19 @@ defmodule CodeTogether.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", CodeTogether do
-    pipe_through :browser # Use the default browser stack
+  scope "/api", CodeTogether do
+    pipe_through :api
 
-    get "/", SessionController, :start
+    post "/coderooms/get",    CoderoomController, :get
+    post "/coderooms/create", CoderoomController, :create
 
-    get "/code_rooms/public/:name", CodeRoomsController, :show
-    get "/code_rooms/private/:private_key", CodeRoomsController, :show
-    resources "/code_rooms", CodeRoomsController
-
-    get "/session/new", SessionController, :new
+    get "/session/current_user", SessionController, :current_user
     post "/session/create", SessionController, :create
   end
 
-  # Other scopes may use custom stacks.
-  scope "/api", CodeTogether do
-    pipe_through :api
-    get "/code_rooms/:id/initial_data", CodeRoomsController, :initial_data
-    get "/code_rooms/validate_name/:name", CodeRoomsController, :validate_name
+  scope "/", CodeTogether do
+    pipe_through :browser
+
+    get "*path", PageController, :index
   end
 end

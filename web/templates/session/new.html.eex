@@ -1,5 +1,0 @@
-<div>
-  <form action="/session/create" method="post">
-    <input name="username" id="username" placeholder="username"/>
-  </form>
-</div>

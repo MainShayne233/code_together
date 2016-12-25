@@ -88,13 +88,15 @@ defmodule CodeTogether.CodeRoom do
 
   def valid_lengths_for(:name), do: {1, 50}
 
-  def create_private(name, language) do
+  def create_coderoom(%{"name" => name, "language" => language, "private" => true}) do
+    IO.puts "hi"
     if available?(name) do
+      key = new_private_key
       %CodeRoom{}
       |> changeset(%{
         name:          name,
         language:      language,
-        private_key:   new_private_key,
+        private_key:   key,
         code:          Language.default_code_for(language),
         output:        Language.default_output_for(language),
         docker_name:   new_docker_name,
@@ -102,12 +104,13 @@ defmodule CodeTogether.CodeRoom do
         current_users: []
       })
       |> Repo.insert
+      {:ok, key}
     else
       {:error, :name_taken}
     end
   end
 
-  def create_public(name, language) do
+  def create_coderoom(%{"name" => name, "language" => language, "private" => false}) do
     if available?(name) do
       %CodeRoom{}
       |> changeset(%{
@@ -121,6 +124,7 @@ defmodule CodeTogether.CodeRoom do
         current_users: []
       })
       |> Repo.insert
+      {:ok, name}
     else
       {:error, :name_taken}
     end
@@ -135,6 +139,10 @@ defmodule CodeTogether.CodeRoom do
   def update(code_room, params) do
     changeset(code_room, params)
     |> Repo.update
+  end
+
+  def get(%{"private" => true, "name" => key}) do
+    Repo.get_by(CodeRoom, private_key: key)
   end
 
   def get(id) do

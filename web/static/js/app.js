@@ -1,17 +1,19 @@
-require("codemirror/lib/codemirror.css")
-require("sweetalert2/dist/sweetalert2.css")
-require("codemirror/theme/material.css")
+// require("codemirror/lib/codemirror.css")
+// require("sweetalert2/dist/sweetalert2.css")
+// require("codemirror/theme/material.css")
 // require("semantic-ui/dist/semantic.min.js")
 require("semantic-ui/dist/semantic.min.css")
+import 'semantic-ui-react'
+import                 'phoenix_html'
+import React      from 'react'
+import { render } from 'react-dom'
+import Session    from './components/session.jsx'
 
-const page_name_field = document.getElementById('page-name')
-const page_name       = page_name_field ? page_name_field.value : null
+render((
+  <Session/>
+), document.getElementById('app'))
 
-switch(page_name) {
-  case 'code_room':
-    require('./code_room.js')
-    break
-  case 'new':
-    require('./new.js')
-    break
+
+function hasUsername() {
+  return true
 }

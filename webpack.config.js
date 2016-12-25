@@ -3,7 +3,7 @@ var CopyWebpackPlugin = require("copy-webpack-plugin");
 
 
 module.exports = {
-  entry: ["./web/static/js/app.js", "./web/static/css/app.scss"],
+  entry: ["./web/static/js/app.js", "./web/static/css/app.css"],
   output: {
     path: "./priv/static",
     filename: "js/app.js"
@@ -15,12 +15,12 @@ module.exports = {
 
   module: {
     loaders: [{
-      test: /\.js$/,
+      test: /\.(js|jsx)$/,
       exclude: /node_modules/,
       loader: "babel",
       include: __dirname,
       query: {
-        presets: ["es2015"],
+        presets: ['es2015', 'stage-0', 'react'],
       },
     },
     {

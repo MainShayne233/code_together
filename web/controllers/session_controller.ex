@@ -1,23 +1,16 @@
 defmodule CodeTogether.SessionController do
   use CodeTogether.Web, :controller
 
-  def start(conn, _params) do
-    case current_username(conn) do
-      nil -> redirect conn, to: "/session/new"
-      _user -> redirect conn, to: "/code_rooms"
-    end
-  end
-
-  def new(conn, _params) do
-    render conn, "new.html"
-  end
-
   def create(conn, %{"username" => username}) do
-    conn = put_session conn, :username, username
-    redirect conn, to: "/code_rooms"
+    conn
+    |> fetch_session
+    |> put_session(:current_user, username)
+    |> put_status(200)
+    |> json(:ok)
   end
 
-  def current_username(conn) do
-    get_session conn, :username
+  def current_user(conn, _) do
+    username = conn |> fetch_session |> get_session(:current_user)
+    json conn, %{username: username}
   end
 end
