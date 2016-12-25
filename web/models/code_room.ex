@@ -266,12 +266,18 @@ defmodule CodeTogether.CodeRoom do
   end
 
   def execute(code_room, code) do
-    "localhost:#{code_room.port}/api/ruby/run"
-    |> HTTPotion.get(query: %{code: code})
-    |> Map.get_lazy(:body, fn -> "" end)
+    "localhost:#{code_room.port}/api/v1/code/execute"
+    |> HTTPotion.post(
+      body: Poison.encode!(%{code: code, language: code_room.language}),
+      headers: ["Content-Type": "application/json"],
+    )
+    |> case do
+      %HTTPotion.Response{status_code: 200, body: body} -> body
+      %HTTPotion.ErrorResponse{message: message} -> message
+    end
     |> Poison.decode
     |> case do
-      {:ok, response} -> response
+      {:ok, %{"result" => result}} -> result
       {:error, _} -> "There was an issue executing the code"
     end
   end

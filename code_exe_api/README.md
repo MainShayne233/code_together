@@ -1,17 +1,24 @@
+# CodeExeApi
 
-## Run locally
+**TODO: Add description**
 
-```bash
-# Install dependencies:
-npm install
+## Installation
 
-# Set environment variables
-export PORT=3000 # optional, defaults to 8080
-export MONGO_URI=mongodb://{hostname}:{port}/{dbname} # optional, can run without db
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
 
-# Start development live-reload server:
-npm run dev
+  1. Add `code_exe_api` to your list of dependencies in `mix.exs`:
 
-# Start production server:
-npm start
-```
+    ```elixir
+    def deps do
+      [{:code_exe_api, "~> 0.1.0"}]
+    end
+    ```
+
+  2. Ensure `code_exe_api` is started before your application:
+
+    ```elixir
+    def application do
+      [applications: [:code_exe_api]]
+    end
+    ```
+
