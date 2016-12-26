@@ -12,7 +12,7 @@ defmodule CodeTogether do
       supervisor(CodeTogether.Endpoint, []),
 
       # in charge of closing inactive code_rooms
-      worker(CodeTogether.RoomWatcher, [])
+      # worker(CodeTogether.RoomWatcher, [])
     ]
 
     # builds image to address any updates

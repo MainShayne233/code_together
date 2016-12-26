@@ -4,6 +4,8 @@ import CodeEditor from './code_editor.jsx'
 import CodeOutput from './code_output.jsx'
 import { getCoderoom, getCurrentUser } from '../utils/api'
 import { default as swal } from 'sweetalert2'
+import { Link } from 'react-router'
+import Header from './header.jsx'
 
 export default class Coderoom extends Component {
 
@@ -55,40 +57,37 @@ export default class Coderoom extends Component {
     })
   }
 
-
-
   render() {
     if (this.state.channel) {
       return (
         <div>
-          <h2>{this.state.name}</h2>
-            <div style={{display: 'flex'}}>
-              <div style={{flex: 1}}>
-                <CodeEditor
-                  ref='codeEditor'
-                  initialCode={this.state.code}
-                  channel={this.state.channel}
-                  currentUser={this.state.currentUser}
-                />
-              </div>
-              <div style={{flex: 1}}>
-                <CodeOutput
-                  ref='codeOutput'
-                  initialOutput={this.state.output}
-                  channel={this.state.channel}
-                  currentUser={this.state.currentUser}
-                />
-              </div>
+          <Header/>
+          <h2 style={{textAlign: 'center', marginTop: -25}}>{this.state.name}</h2>
+          <div className='ui segment' style={{display: 'flex'}}>
+            <div style={{flex: 1}}>
+              <CodeEditor
+                ref='codeEditor'
+                initialCode={this.state.code}
+                channel={this.state.channel}
+                currentUser={this.state.currentUser}
+              />
             </div>
+            <div style={{flex: 1}}>
+              <CodeOutput
+                ref='codeOutput'
+                initialOutput={this.state.output}
+                channel={this.state.channel}
+                currentUser={this.state.currentUser}
+              />
+            </div>
+          </div>
         </div>
       )
     } else {
       return (
         <div>
-
         </div>
       )
     }
-
   }
 }

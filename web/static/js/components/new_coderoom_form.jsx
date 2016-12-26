@@ -1,14 +1,32 @@
 import React, {Component} from 'react'
 import { createCoderoom }  from '../utils/api'
+import { Link } from 'react-router'
 
 export default class NewCoderoomForm extends Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      privateChecked: true,
+      privateChecked: false,
       errors: [],
     }
+  }
+
+  componentDidMount() {
+    $('.checkbox')
+      .checkbox({
+        onChange: () => this.state.privateChecked = !this.state.privateChecked
+      })
+      .checkbox('check')
+
+    $('.ui.small.modal')
+      .modal({
+        onApprove: () => false,
+      })
+  }
+
+  componentWillUnmount() {
+    $('.ui.small.modal').remove()
   }
 
   handleSubmit(event) {
@@ -18,78 +36,99 @@ export default class NewCoderoomForm extends Component {
     const params = {
       name:     name.value,
       language: language.value,
-      private:  this.state.privateChecked
+      private:  isPrivate
     }
     createCoderoom(params).then(response => {
       const { data } = response
       if (data.error) {
         this.handleError(data.error)
       } else {
+        this.hide()
         const route = `/coderooms/${isPrivate ? 'private' : 'public'}/${data.name}`
-        this.props.route.browserHistory.replace(route)
+        this.props.browserHistory.replace(route)
       }
-      })
+    })
   }
 
   handleError(errors) {
-    console.log(errors)
     this.setState({
       errors: errors
-    })
+    }, () => this.refs.name.focus())
   }
 
   handleCheckboxChange() {
     this.setState({
       privateChecked: !this.state.privateChecked
-    })
+    }, () => $('.checkbox').checkbox('toggle'))
   }
 
   renderErrors() {
-    return this.state.errors.map((error, index) => {
-      return <p key={index}>{error}</p>
+    if (this.state.errors.length === 0) return null
+    const errors =  this.state.errors.map((error, index) => {
+      return <p key={index}>{`- ${error}`}</p>
     })
+    return (
+      <div className='ui segment'>
+        {errors}
+      </div>
+    )
+  }
+
+  hide() {
+    $('.ui.small.modal')
+      .modal('hide')
+  }
+
+  show() {
+    $('.ui.small.modal')
+      .modal('show')
   }
 
   render() {
     return (
-      <form
-        style={{paddingTop: 200, marginLeft: 250, marginRight: 250}}
-        className="ui form"
-        onSubmit={this.handleSubmit.bind(this)}
-        >
-        {this.renderErrors()}
-        <div className="three fields  ui raised segment">
-          <div className="eight wide field">
-            <input
-              autoFocus={true}
-              ref="name"
-              style={{textAlign: 'center'}}
-              type="text"
-              placeholder='Name'
-            />
-          </div>
-          <div className=" eight wide field">
-            <select
-              ref='language'
-              className="ui fluid search dropdown"
-              name="card[expire-month]"
-              >
-              <option value="">Language</option>
-              <option value="ruby">Ruby</option>
-            </select>
-          </div>
-          <div style={{marginTop: 10}} className="ui three wide field checked checkbox">
-            <input
-              ref='isPrivate'
-              type="checkbox"
-              onChange={this.handleCheckboxChange.bind(this)}
-              checked={this.state.privateChecked}
-              />
-            <label>Private</label>
-          </div>
-          <input className="ui button" value="Create Coderoom" type="submit"/>
+      <div className="ui small modal">
+        <div className="header">
+          Create coderoom
         </div>
-      </form>
+        <div className="content">
+          {this.renderErrors()}
+          <div className="ui small form">
+            <div className="three fields">
+              <div style={{paddingTop: 18}} className="field">
+                <input ref='name' placeholder="Coderoom name" type="text"/>
+              </div>
+              <div style={{paddingTop: 18}} className="field">
+                <select ref='language' className='ui fluid dropdown'>
+                  <option value=''>Language</option>
+                  <option value='ruby'>Ruby</option>
+                </select>
+              </div>
+              <div className='field'>
+                <div style={{marginTop: 25}} className="ui checkbox">
+                  <input
+                    onChange={this.handleCheckboxChange.bind(this)}
+                    value={this.state.privateChecked}
+                    type="checkbox"
+                  />
+                  <label>Private</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="actions">
+          <div className="ui black deny button">
+            Cancel
+          </div>
+          <div onClick={this.handleSubmit.bind(this)} className="ui positive right button">
+            Create
+          </div>
+        </div>
+      </div>
     )
   }
+}
+
+function onApprove() {
+  return false
 }

@@ -22,7 +22,7 @@ export default class CodeEditor extends Component {
       theme: 'material',
     })
     codeMirror.setValue(this.props.initialCode || '')
-    codeMirror.setSize('auto', 600)
+    codeMirror.setSize('99%', 600)
     this.state = {
       codeMirror: codeMirror
     }

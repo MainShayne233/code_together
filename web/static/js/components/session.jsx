@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Router, Route, Link, browserHistory } from 'react-router'
+import { Router, Route, browserHistory } from 'react-router'
 import Coderoom from './coderoom.jsx'
-import Index from './index.jsx'
+import Lobby from './lobby.jsx'
 import NewUserForm from './new_user_form.jsx'
 import NewCoderoomForm from './new_coderoom_form.jsx'
 import { getCurrentUser }    from '../utils/api.js'
@@ -53,7 +53,7 @@ export default class Session extends Component {
         />
         <Route
           path='/'
-          component={Index}
+          component={Lobby}
           currentUser={this.state.currentUser}
           browserHistory={browserHistory}
         />

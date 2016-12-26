@@ -22,24 +22,30 @@ export default class NewUserForm extends Component {
 
   render() {
     return (
-      <form style={{paddingTop: 200}} className="ui form"
-        onSubmit={this.handleSubmit.bind(this)}
-        >
-        <div className="three fields">
-          <div className="field "></div>
-          <div className="field ui raised segment">
-            <h2 style={{textAlign: 'center'}}>Choose a username</h2>
-            <input
-              autoFocus={true}
-              ref="username"
-              style={{textAlign: 'center'}}
-              type="text"
-              placeholder='. . .'
-            />
-          </div><div className="field">
+      <div>
+        <h2 style={{paddingTop: 100}} className="ui center aligned icon header">
+          <i className="circular users icon"></i>
+          Code Together
+        </h2>
+        <form style={{paddingTop: 40}} className="ui form"
+          onSubmit={this.handleSubmit.bind(this)}
+          >
+          <div className="three fields">
+            <div className="field "></div>
+            <div className="field ui raised segment">
+              <h2 style={{textAlign: 'center'}}>Choose a username</h2>
+              <input
+                autoFocus={true}
+                ref="username"
+                style={{textAlign: 'center'}}
+                type="text"
+                placeholder='. . .'
+              />
+            </div><div className="field">
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     )
   }
 }

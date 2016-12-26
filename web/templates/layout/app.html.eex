@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <title>code together</title>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css"></link>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">

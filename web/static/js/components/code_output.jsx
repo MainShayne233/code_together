@@ -19,6 +19,7 @@ export default class CodeOutput extends Component {
       mode: '',
     })
     codeMirror.setValue(this.props.initialOutput || '')
+    codeMirror.setSize('99%', 600)
     codeMirror.scrollTo(null, Infinity)
     this.state = {
       codeMirror: codeMirror
