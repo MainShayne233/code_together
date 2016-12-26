@@ -7,7 +7,7 @@ defmodule CodeExeApi.Router.Homepage do
         namespace :execute do
           params do
             requires :language, type: String
-            requires :code,     type: String
+            optional :code,     type: String
           end
           post do
             case CodeExeApi.Execute.code(params) do

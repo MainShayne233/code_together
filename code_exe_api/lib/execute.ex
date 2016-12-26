@@ -24,4 +24,6 @@ defmodule CodeExeApi.Execute do
     end
   end
 
+  def code(%{language: language}), do: code(%{language: language, code: ""})
+
 end

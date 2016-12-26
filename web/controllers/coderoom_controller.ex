@@ -6,14 +6,14 @@ defmodule CodeTogether.CoderoomController do
       {:ok, name} ->
         json conn, %{name: name}
       {:error, error} ->
-        json conn, %{error: "Failed to create coderoom"}
+        json conn, %{error: error}
     end
   end
 
   def get(conn, coderoom_params) do
     case CodeTogether.CodeRoom.get(coderoom_params) do
-      %{name: name, id: id, language: language} ->
-        json conn, %{name: name, id: id, language: language}
+      %{name: name, id: id, language: language, code: code, output: output} ->
+        json conn, %{name: name, id: id, language: language, code: code, output: output}
       _ ->
         json conn, %{error: "failed to get coderoom"}
     end

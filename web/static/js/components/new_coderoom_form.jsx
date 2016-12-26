@@ -7,6 +7,7 @@ export default class NewCoderoomForm extends Component {
     super(props)
     this.state = {
       privateChecked: true,
+      errors: [],
     }
   }
 
@@ -14,28 +15,38 @@ export default class NewCoderoomForm extends Component {
     event.preventDefault()
     const {name, language} = this.refs
     const isPrivate = this.state.privateChecked
-    createCoderoom({
+    const params = {
       name:     name.value,
       language: language.value,
       private:  this.state.privateChecked
-    }).then(response => {
+    }
+    createCoderoom(params).then(response => {
       const { data } = response
       if (data.error) {
-        this.handleError(response.error)
+        this.handleError(data.error)
       } else {
         const route = `/coderooms/${isPrivate ? 'private' : 'public'}/${data.name}`
         this.props.route.browserHistory.replace(route)
       }
-    })
+      })
   }
 
-  handleError(error) {
-    console.log(error)
+  handleError(errors) {
+    console.log(errors)
+    this.setState({
+      errors: errors
+    })
   }
 
   handleCheckboxChange() {
     this.setState({
       privateChecked: !this.state.privateChecked
+    })
+  }
+
+  renderErrors() {
+    return this.state.errors.map((error, index) => {
+      return <p key={index}>{error}</p>
     })
   }
 
@@ -46,6 +57,7 @@ export default class NewCoderoomForm extends Component {
         className="ui form"
         onSubmit={this.handleSubmit.bind(this)}
         >
+        {this.renderErrors()}
         <div className="three fields  ui raised segment">
           <div className="eight wide field">
             <input

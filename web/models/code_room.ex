@@ -24,7 +24,7 @@ defmodule CodeTogether.CodeRoom do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, all_fields)
-    |> validate_required(all_fields -- [:private_key])
+    |> validate_required(all_fields -- [:private_key, :code])
   end
 
   def all_fields do
@@ -40,37 +40,10 @@ defmodule CodeTogether.CodeRoom do
     ]
   end
 
-  def validate_name(name) do
-    [
-      validate_uniq(name, :name),
-      validate_length(name, :name)
-    ]
-    |> validity_check
-  end
-
-  def validity_check(validations) do
-    case error_list(validations) do
-      [] -> {:ok, "valid"}
-      errors -> {:error, errors}
-    end
-  end
-
-  def error_list(validations) do
-    Enum.filter_map(validations, fn (validation) ->
-      case validation do
-        {:error, _} -> true
-        _ -> false
-      end
-    end,
-    fn ({:error, message}) ->
-      message
-    end)
-  end
-
   def validate_uniq(value, field) do
     case Repo.get_by(CodeRoom, %{field => value}) do
-      nil -> {:ok, "#{field} is uniq"}
-      _   -> {:error, "There is already a code room with a #{field}: #{value}"}
+      nil -> nil
+      _   -> "There is already a code room with a #{field}: #{value}"
     end
   end
 
@@ -78,55 +51,50 @@ defmodule CodeTogether.CodeRoom do
     {min, max} = valid_lengths_for(field)
     cond do
       String.length(value) < min ->
-        {:error, "#{field} must at least #{min} character(s) in length"}
+        "#{field} must at least #{min} character(s) in length"
       String.length(value) > max ->
-        {:error, "#{field} cannot exceed #{max} character(s) in length"}
+        "#{field} cannot exceed #{max} character(s) in length"
       true ->
-        {:ok, "#{field} is of proper length"}
+        nil
     end
+  end
+
+  def validate_presence(value, field) do
+    if value && value != "", do: nil, else: "#{field} is a required field"
   end
 
   def valid_lengths_for(:name), do: {1, 50}
 
-  def create_coderoom(%{"name" => name, "language" => language, "private" => true}) do
-    IO.puts "hi"
-    if available?(name) do
-      key = new_private_key
-      %CodeRoom{}
-      |> changeset(%{
-        name:          name,
-        language:      language,
-        private_key:   key,
-        code:          Language.default_code_for(language),
-        output:        Language.default_output_for(language),
-        docker_name:   new_docker_name,
-        port:          new_port,
-        current_users: []
-      })
-      |> Repo.insert
-      {:ok, key}
-    else
-      {:error, :name_taken}
-    end
+  def validations(code_room) do
+    [
+      validate_presence(code_room["name"], :name),
+      validate_uniq(code_room["name"], :name),
+      validate_length(code_room["name"], :name),
+      validate_presence(code_room["language"], :language),
+    ]
+    |> Enum.filter( &(&1) )
   end
 
-  def create_coderoom(%{"name" => name, "language" => language, "private" => false}) do
-    if available?(name) do
-      %CodeRoom{}
-      |> changeset(%{
-        name:          name,
-        language:      language,
-        private_key:   nil,
-        code:          Language.default_code_for(language),
-        output:        Language.default_output_for(language),
-        docker_name:   new_docker_name,
-        port:          new_port,
-        current_users: []
-      })
-      |> Repo.insert
-      {:ok, name}
-    else
-      {:error, :name_taken}
+  def create_coderoom(code_room_params) do
+    case validations(code_room_params) do
+      [] ->
+        %{"name" => name, "language" => language, "private" => private} = code_room_params
+        {:ok, code_room} = %CodeRoom{}
+        |> changeset(%{
+          name:          name,
+          language:      language,
+          private_key:   (if private, do: new_private_key, else: nil),
+          code:          Language.default_code_for(language),
+          output:        Language.default_output_for(language),
+          docker_name:   new_docker_name,
+          port:          new_port,
+          current_users: []
+        })
+        |> Repo.insert
+        start_docker(code_room)
+        {:ok, (if private, do: code_room.private_key, else: name)}
+      errors ->
+        {:error, errors}
     end
   end
 
@@ -143,6 +111,10 @@ defmodule CodeTogether.CodeRoom do
 
   def get(%{"private" => true, "name" => key}) do
     Repo.get_by(CodeRoom, private_key: key)
+  end
+
+  def get(%{"private" => false, "name" => name}) do
+    Repo.get_by(CodeRoom, name: name)
   end
 
   def get(id) do
@@ -273,7 +245,7 @@ defmodule CodeTogether.CodeRoom do
     code_room
   end
 
-  def execute(code_room, code) do
+  def execute(code_room, code \\ "") do
     "localhost:#{code_room.port}/api/v1/code/execute"
     |> HTTPotion.post(
       body: Poison.encode!(%{code: code, language: code_room.language}),
@@ -281,6 +253,7 @@ defmodule CodeTogether.CodeRoom do
     )
     |> case do
       %HTTPotion.Response{status_code: 200, body: body} -> body
+      %HTTPotion.Response{status_code: 500, body: body} -> "There was an issue executing the code"
       %HTTPotion.ErrorResponse{message: message} -> message
     end
     |> Poison.decode
