@@ -40,6 +40,15 @@ defmodule CodeTogether.CodeRoomChannel do
     {:noreply, socket}
   end
 
+  def handle_in("code_room:new_chat", %{"new_chat" => new_chat}, socket) do
+    code_room_id = socket.assigns[:code_room_id]
+    code_room = CodeRoom.get(code_room_id)
+    updated_chat = (code_room.chat <> "\n" <> new_chat) |> CodeRoom.truncate
+    broadcast! socket, "code_room:chat_update", %{chat: updated_chat}
+    CodeRoom.update(code_room, %{chat: updated_chat})
+    {:noreply, socket}
+  end
+
   def handle_out(room_and_topic, payload, socket) do
     user_code_room_id = socket.assigns[:code_room_id]
     if payload.code_room_id == user_code_room_id do

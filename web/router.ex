@@ -16,8 +16,10 @@ defmodule CodeTogether.Router do
   scope "/api", CodeTogether do
     pipe_through :api
 
+    get "/coderooms/get_all", CoderoomController, :get_all
     post "/coderooms/get",    CoderoomController, :get
     post "/coderooms/create", CoderoomController, :create
+    post "/coderooms/start",  CoderoomController, :start
 
     get "/session/current_user", SessionController, :current_user
     post "/session/create", SessionController, :create

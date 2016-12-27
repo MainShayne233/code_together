@@ -23,69 +23,14 @@ export function getCoderoom(coderoom) {
   return axios.post('/api/coderooms/get', coderoom)
 }
 
+export function startCoderoom(coderoom) {
+  return axios.post('/api/coderooms/start', coderoom)
+}
+
 export function getPublicCoderooms() {
   return new Promise((res, rej) => {
-    res([
-      {
-        name: 'Nodies',
-        language: 'javascript',
-        currentUsers: 4,
-      },
-      {
-        name: 'Rubyists',
-        language: 'ruby',
-        currentUsers: 7,
-      },
-      {
-        name: 'Web hereos',
-        language: 'javascript',
-        currentUsers: 2,
-      },
-      {
-        name: 'Nodies',
-        language: 'javascript',
-        currentUsers: 4,
-      },
-      {
-        name: 'Rubyists',
-        language: 'ruby',
-        currentUsers: 7,
-      },
-      {
-        name: 'Web hereos',
-        language: 'javascript',
-        currentUsers: 2,
-      },
-      {
-        name: 'Nodies',
-        language: 'javascript',
-        currentUsers: 4,
-      },
-      {
-        name: 'Rubyists',
-        language: 'ruby',
-        currentUsers: 7,
-      },
-      {
-        name: 'Web hereos',
-        language: 'javascript',
-        currentUsers: 2,
-      },
-      {
-        name: 'Nodies',
-        language: 'javascript',
-        currentUsers: 4,
-      },
-      {
-        name: 'Rubyists',
-        language: 'ruby',
-        currentUsers: 7,
-      },
-      {
-        name: 'Web hereos',
-        language: 'javascript',
-        currentUsers: 2,
-      },
-    ])
+    axios.get('/api/coderooms/get_all').then(response => {
+      res(response.data.coderooms)
+    })
   })
 }

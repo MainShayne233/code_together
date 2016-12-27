@@ -12,19 +12,17 @@ defmodule CodeTogether.CodeRoom do
     field :private_key,   :string
     field :code,          :string
     field :output,        :string
+    field :chat,          :string
     field :docker_name,   :string
     field :port,          :integer
     field :current_users, {:array, :string}
     timestamps()
   end
 
-  @doc """
-  Builds a changeset based on the `struct` and `params`.
-  """
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, all_fields)
-    |> validate_required(all_fields -- [:private_key, :code])
+    |> validate_required(all_fields -- [:private_key, :code, :chat])
   end
 
   def all_fields do
@@ -36,7 +34,8 @@ defmodule CodeTogether.CodeRoom do
       :private_key,
       :docker_name,
       :port,
-      :current_users
+      :current_users,
+      :chat
     ]
   end
 
@@ -86,6 +85,7 @@ defmodule CodeTogether.CodeRoom do
           private_key:   (if private, do: new_private_key, else: nil),
           code:          Language.default_code_for(language),
           output:        Language.default_output_for(language),
+          chat:          " ",
           docker_name:   new_docker_name,
           port:          new_port,
           current_users: []
@@ -231,15 +231,20 @@ defmodule CodeTogether.CodeRoom do
 
   def start_docker(code_room) do
     spawn fn ->
-      docker_cmd [
-        "run",
-        "-p",
-        "#{code_room.port}:8080",
-        "-d",
-        "--name",
-        "#{code_room.docker_name}",
-        "code_exe_api"
-       ]
+      {output, _} = docker_cmd(["ps", "-a"])
+      if String.contains?(output, code_room.docker_name) do
+        docker_cmd ["start", "#{code_room.docker_name}"]
+      else
+        docker_cmd [
+          "run",
+          "-p",
+          "#{code_room.port}:8080",
+          "-d",
+          "--name",
+          "#{code_room.docker_name}",
+          "code_exe_api"
+         ]
+      end
        IO.puts "Started #{code_room.docker_name} on port #{code_room.port}"
     end
     code_room

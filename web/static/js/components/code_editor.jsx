@@ -10,6 +10,9 @@ export default class CodeEditor extends Component {
   componentDidMount() {
     this.configureCodeMirror()
     this.configureChannel()
+    window.addEventListener('resize', () => {
+      this.state.codeMirror.setSize('99%', this.props.height)
+    })
   }
 
   configureCodeMirror() {
@@ -22,7 +25,7 @@ export default class CodeEditor extends Component {
       theme: 'material',
     })
     codeMirror.setValue(this.props.initialCode || '')
-    codeMirror.setSize('99%', 600)
+    codeMirror.setSize('99%', this.props.height)
     this.state = {
       codeMirror: codeMirror
     }
@@ -59,7 +62,7 @@ export default class CodeEditor extends Component {
   configureChannel() {
     const {channel, currentUser} = this.props
     const {codeMirror} = this.state
-    codeMirror.on('keydown', () => {
+    codeMirror.on('keydown', (mirror, event) => {
       if (event.shiftKey && event.code === 'Enter') {
         this.handleRunCode()
         event.preventDefault()
@@ -92,13 +95,6 @@ export default class CodeEditor extends Component {
           ref='codeMirror'
           >
         </textarea>
-        <button
-          className='ui button'
-          ref='runCodeButton'
-          onClick={this.handleRunCode.bind(this)}
-          >
-          Run Code
-        </button>
       </div>
     )
   }

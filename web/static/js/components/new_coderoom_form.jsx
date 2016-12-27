@@ -92,7 +92,7 @@ export default class NewCoderoomForm extends Component {
         </div>
         <div className="content">
           {this.renderErrors()}
-          <div className="ui small form">
+          <form onSubmit={this.handleSubmit.bind(this)} className="ui small form">
             <div className="three fields">
               <div style={{paddingTop: 18}} className="field">
                 <input ref='name' placeholder="Coderoom name" type="text"/>
@@ -114,7 +114,7 @@ export default class NewCoderoomForm extends Component {
                 </div>
               </div>
             </div>
-          </div>
+          </form>
         </div>
         <div className="actions">
           <div className="ui black deny button">

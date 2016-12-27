@@ -32,7 +32,7 @@ export default class Lobby extends Component {
               <img className="ui left floated avatar image" src={`/images/${room.language}.png`}/>
               <div className="content">
                 <div className="header"><h3><Link to={`/coderooms/public/${room.name}`}>{room.name}</Link></h3></div>
-                {`${room.language} - ${room.currentUsers} busy busy coding`}
+                {`${room.language} - ${room.current_users.length} busy busy coding`}
               </div>
             </div>
           </div>

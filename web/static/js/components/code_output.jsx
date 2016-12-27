@@ -6,6 +6,9 @@ export default class CodeOutput extends Component {
   componentDidMount() {
     this.configureCodeMirror()
     this.configureChannel()
+    window.addEventListener('resize', () => {
+      this.state.codeMirror.setSize('99%', this.props.height)
+    })
   }
 
   configureCodeMirror() {
@@ -19,7 +22,7 @@ export default class CodeOutput extends Component {
       mode: '',
     })
     codeMirror.setValue(this.props.initialOutput || '')
-    codeMirror.setSize('99%', 600)
+    codeMirror.setSize('99%', this.props.height)
     codeMirror.scrollTo(null, Infinity)
     this.state = {
       codeMirror: codeMirror
