@@ -1,5 +1,8 @@
-Application.ensure_all_started(:hound)
+if System.get_env("KILL_DOCKER") do
+  IO.puts "Stopping and rming all docker containers"
+  :os.cmd('docker stop $(docker ps -a -q)')
+else
+  IO.puts "KILL_DOCKER env not set. Could make some tests fail"
+end
 ExUnit.start
-Mix.Task.run "ecto.create", ["--quiet"]
-Mix.Task.run "ecto.migrate", ["--quiet"]
-Ecto.Adapters.SQL.Sandbox.mode(CodeTogether.Repo, :auto)
+Ecto.Adapters.SQL.Sandbox.mode(CodeTogether.Repo, :manual)

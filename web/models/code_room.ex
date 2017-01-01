@@ -1,7 +1,5 @@
 defmodule CodeTogether.CodeRoom do
-  alias CodeTogether.CodeRoom
-  alias CodeTogether.Repo
-  alias CodeTogether.Language
+  alias CodeTogether.{CodeRoom, Repo, Language, Util}
   use CodeTogether.Web, :model
   use Phoenix.Channel
   import Ecto.Query
@@ -65,37 +63,31 @@ defmodule CodeTogether.CodeRoom do
   def valid_lengths_for(:name), do: {1, 50}
 
   def validations(code_room) do
-    [
-      validate_presence(code_room["name"], :name),
-      validate_uniq(code_room["name"], :name),
-      validate_length(code_room["name"], :name),
-      validate_presence(code_room["language"], :language),
-    ]
-    |> Enum.filter( &(&1) )
+    []
   end
 
-  def create_coderoom(code_room_params) do
-    case validations(code_room_params) do
-      [] ->
-        %{"name" => name, "language" => language, "private" => private} = code_room_params
-        {:ok, code_room} = %CodeRoom{}
-        |> changeset(%{
-          name:          name,
-          language:      language,
-          private_key:   (if private, do: new_private_key, else: nil),
-          code:          Language.default_code_for(language),
-          output:        Language.default_output_for(language),
-          chat:          " ",
-          docker_name:   new_docker_name,
-          port:          new_port,
-          current_users: []
-        })
-        |> Repo.insert
-        start_docker(code_room)
-        {:ok, (if private, do: code_room.private_key, else: name)}
-      errors ->
-        {:error, errors}
+  def create_coderoom(coderoom_params = %{private: private, name: name}) do
+    %CodeRoom{}
+    |> changeset(sanitized_params(coderoom_params))
+    |> Repo.insert
+    |> case do
+      {:ok, coderoom} -> {:ok, coderoom}
+      {:error, errors} -> {:error, errors}
     end
+  end
+
+  def sanitized_params(code_room_params) do
+    code_room_params
+    |> Map.take([:name, :language])
+    |> Map.merge(%{
+      private_key:   (if Map.get(code_room_params, :private), do: new_private_key, else: nil),
+      code:          Language.default_code_for(code_room_params.language),
+      output:        Language.default_output_for(code_room_params.language),
+      chat:          " ",
+      docker_name:   new_docker_name,
+      port:          new_port,
+      current_users: []
+    })
   end
 
   def all_public do
@@ -109,16 +101,13 @@ defmodule CodeTogether.CodeRoom do
     |> Repo.update
   end
 
-  def get(%{"private" => true, "name" => key}) do
-    Repo.get_by(CodeRoom, private_key: key)
+  def get_by(params) do
+    Repo.get_by CodeRoom, params
   end
 
-  def get(%{"private" => false, "name" => name}) do
-    Repo.get_by(CodeRoom, name: name)
-  end
-
-  def get(id) do
-    Repo.get CodeRoom, id
+  def for_json(coderoom) do
+    coderoom
+    |> Map.take([:name, :id, :code, :output, :current_users, :chat])
   end
 
   def close(code_room) do
