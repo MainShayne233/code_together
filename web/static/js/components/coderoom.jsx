@@ -91,7 +91,7 @@ export default class Coderoom extends Component {
         </div>
         <ul className="list">
           <li
-            style={{fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;"}}
+            style={{fontFamily: "Lato,'Helvetica Neue',Arial,Helvetica,sans-serif"}}
             >
             Type your code into the field below, and type Shift + Enter to run it
           </li>
