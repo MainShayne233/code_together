@@ -17,24 +17,20 @@ export default class Coderoom extends Component {
       height: window.innerHeight * 0.8,
       showMessage: true,
     }
+    this.configure()
+  }
+
+  configure() {
     window.addEventListener('resize', () => {
       this.setState({
         height: window.innerHeight * 0.8,
       })
     })
-    this.configure()
-  }
-
-  configure() {
+    var getParams
     const {access, name} = this.props.params
-    startCoderoom({
-      private: access === 'private',
-      name:    name,
-    })
-    getCoderoom({
-      private: access === 'private',
-      name:    name,
-    }).then(response => {
+    if (access === 'private') getParams = {private_key: ''}
+    else                      getParams = {name: name}
+    getCoderoom(getParams).then(response => {
       this.setState(response.data, () => this.configureSocketAndChannels())
     })
   }
@@ -44,12 +40,12 @@ export default class Coderoom extends Component {
       this.state.currentUser = username
       let socket = new Socket("/socket", {params: {token: window.userToken}})
       socket.connect()
-      let channel = socket.channel("code_room:connect", {code_room_id: this.state.id})
+      let channel = socket.channel("coderoom:connect", {coderoom_id: this.state.id})
       channel.join()
         .receive("ok",    resp => { console.log("Joined successfully", resp) })
         .receive("error", resp => { console.log("Unable to join", resp) })
-      channel.push("code_room:prepare", {username: username})
-      channel.on("code_room:not_ready", data => {
+      channel.push("coderoom:prepare", {username: username})
+      channel.on("coderoom:not_ready", data => {
         if (!swal.isVisible()) {
           swal({
             text: data.message,
@@ -60,15 +56,15 @@ export default class Coderoom extends Component {
         }
       })
 
-      channel.on("code_room:ready", data => {
+      channel.on("coderoom:ready", data => {
         swal.close()
       })
-      channel.on("code_room:update_users", data => {
+      channel.on("coderoom:update_users", data => {
         this.setState({
           current_users: data.current_users
         })
       })
-      channel.on("code_room:chat_update", data => {
+      channel.on("coderoom:chat_update", data => {
         this.setState({
           chat: data.chat
         })

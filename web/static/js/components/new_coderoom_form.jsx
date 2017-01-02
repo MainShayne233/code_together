@@ -38,7 +38,7 @@ export default class NewCoderoomForm extends Component {
       language: language.value,
       private:  isPrivate
     }
-    createCoderoom(params).then(response => {
+    createCoderoom({coderoom: params}).then(response => {
       const { data } = response
       if (data.error) {
         this.handleError(data.error)

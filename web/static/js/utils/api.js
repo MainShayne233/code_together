@@ -20,7 +20,9 @@ export function createCoderoom(coderoom) {
 }
 
 export function getCoderoom(coderoom) {
-  return axios.post('/api/coderooms/get', coderoom)
+  const [field] = Object.keys(coderoom)
+  const url = `/api/coderooms/?${field}=${coderoom[field]}`
+  return axios.get(url)
 }
 
 export function startCoderoom(coderoom) {
@@ -29,7 +31,7 @@ export function startCoderoom(coderoom) {
 
 export function getPublicCoderooms() {
   return new Promise((res, rej) => {
-    axios.get('/api/coderooms/get_all').then(response => {
+    axios.get('/api/coderooms/all/public').then(response => {
       res(response.data.coderooms)
     })
   })

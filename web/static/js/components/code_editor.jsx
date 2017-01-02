@@ -36,7 +36,7 @@ export default class CodeEditor extends Component {
 
   handleCodeUpdate(code) {
     const {channel, currentUser} = this.props
-    channel.push('code_room:new_code', {
+    channel.push('coderoom:new_code', {
       code: code,
       username: currentUser,
     })
@@ -46,7 +46,7 @@ export default class CodeEditor extends Component {
     const {channel} = this.props
     const {codeMirror} = this.state
     const code = codeMirror.getValue()
-    channel.push('code_room:run', {
+    channel.push('coderoom:run', {
       code: code,
     })
   }
@@ -70,12 +70,12 @@ export default class CodeEditor extends Component {
     })
     codeMirror.on('keyup', () => {
       const code = codeMirror.getValue()
-      channel.push('code_room:new_code', {
+      channel.push('coderoom:new_code', {
         code: code,
         username: currentUser,
       })
     })
-    channel.on("code_room:code_update", data => {
+    channel.on("coderoom:code_update", data => {
       const {code, username} = data
       if (username !== this.props.currentUser) {
         const code = data.code

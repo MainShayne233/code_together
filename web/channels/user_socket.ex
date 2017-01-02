@@ -1,7 +1,7 @@
 defmodule CodeTogether.UserSocket do
   use Phoenix.Socket
 
-  channel "code_room:*", CodeTogether.CodeRoomChannel
+  channel "coderoom:*", CodeTogether.CoderoomChannel
 
   transport :websocket, Phoenix.Transports.WebSocket
 

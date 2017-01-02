@@ -16,7 +16,7 @@ export default class Chatroom extends Component {
     const newMsg = chatInput.value
     if (newMsg.trim() !== '') {
       const newChat = `${this.props.currentUser}:${newMsg}`
-      this.props.channel.push('code_room:new_chat', {new_chat: newChat})
+      this.props.channel.push('coderoom:new_chat', {new_chat: newChat})
       chatInput.value = ''
       chatInput.focus()
     }

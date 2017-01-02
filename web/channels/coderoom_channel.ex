@@ -18,16 +18,18 @@ defmodule CodeTogether.CoderoomChannel do
   def terminate(_reason, socket) do
     leaving_user = socket.assigns[:username]
     socket.assigns[:coderoom_id]
-    |> Coderoom.get_by
+    Coderoom.get_by(%{id: socket.assigns[:coderoom_id]})
     |> Coderoom.handle_leaving_user(leaving_user, socket)
   end
 
   def handle_in("coderoom:prepare", %{"username" => username}, socket) do
     socket = assign(socket, :username, username)
-    socket.assigns[:coderoom_id]
-    |> Coderoom.get_by
-    |> Coderoom.notify_when_running(socket)
-    |> Coderoom.add_user_and_notify_if_new(username, socket)
+    spawn fn ->
+      Coderoom.get_by(%{id: socket.assigns[:coderoom_id]})
+      |> Coderoom.start_docker
+      |> Coderoom.notify_when_running(socket)
+      |> Coderoom.add_user_and_notify_if_new(username, socket)
+    end
     {:noreply, socket}
   end
 
@@ -35,14 +37,14 @@ defmodule CodeTogether.CoderoomChannel do
     coderoom_id = socket.assigns[:coderoom_id]
     data = %{code: code, coderoom_id: coderoom_id, username: username}
     broadcast! socket, "coderoom:code_update", data
-    Coderoom.get_by(coderoom_id)
+    Coderoom.get_by(%{id: coderoom_id})
     |> Coderoom.update(%{code: code})
     {:noreply, socket}
   end
 
   def handle_in("coderoom:new_chat", %{"new_chat" => new_chat}, socket) do
     coderoom_id = socket.assigns[:coderoom_id]
-    coderoom = Coderoom.get_by(coderoom_id)
+    coderoom = Coderoom.get_by(%{id: coderoom_id})
     updated_chat = (coderoom.chat <> "\n" <> new_chat) |> Coderoom.truncate
     broadcast! socket, "coderoom:chat_update", %{chat: updated_chat}
     Coderoom.update(coderoom, %{chat: updated_chat})
@@ -59,7 +61,7 @@ defmodule CodeTogether.CoderoomChannel do
 
   def handle_in("coderoom:run", %{"code" => code}, socket) do
     coderoom_id = socket.assigns[:coderoom_id]
-    coderoom = Coderoom.get_by coderoom_id
+    coderoom = Coderoom.get_by(%{id: coderoom_id})
     result = Coderoom.result_for(coderoom, code)
     updated_output = Coderoom.truncate(coderoom.output <> "\n" <> result)
     broadcast! socket, "coderoom:output_update", %{output: updated_output, coderoom_id: coderoom_id}

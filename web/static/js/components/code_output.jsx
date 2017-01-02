@@ -32,7 +32,7 @@ export default class CodeOutput extends Component {
   configureChannel() {
     const {channel} = this.props
     const {codeMirror} = this.state
-    channel.on("code_room:output_update", data => {
+    channel.on("coderoom:output_update", data => {
       const {output} = data
       codeMirror.setValue(output)
       codeMirror.scrollTo(null, Infinity)
