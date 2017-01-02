@@ -1,6 +1,6 @@
 defmodule CodeTogether.CoderoomControllerTest do
   use CodeTogether.{ConnCase, CoderoomCase}
-  alias CodeTogether.{CodeRoom, CoderoomCase}
+  alias CodeTogether.{Coderoom, CoderoomCase}
 
   test "GET /api/coderooms/all/public", %{conn: conn} do
     (0..10)
@@ -50,20 +50,20 @@ defmodule CodeTogether.CoderoomControllerTest do
   end
 
   test "POST /api/coderooms/create create valid coderoom", %{conn: conn} do
-    assert CodeRoom.all |> Enum.count == 0
+    assert Coderoom.all |> Enum.count == 0
     post(conn, "/api/coderooms/create", %{coderoom: CoderoomCase.sample_coderoom_params})
     |> json_response(200)
-    assert CodeRoom.all |> Enum.count == 1
+    assert Coderoom.all |> Enum.count == 1
   end
 
   test "POST /api/coderooms/create fail to create invalid coderoom", %{conn: conn} do
-    assert CodeRoom.all |> Enum.count == 0
+    assert Coderoom.all |> Enum.count == 0
     response = post(conn, "/api/coderooms/create", %{
       coderoom: CoderoomCase.sample_coderoom_params(%{name: []})
     })
     |> json_response(400)
     assert response["error"]
-    assert CodeRoom.all |> Enum.count == 0
+    assert Coderoom.all |> Enum.count == 0
   end
 
   test "GET /api/coderooms/start", %{conn: conn} do
@@ -73,6 +73,9 @@ defmodule CodeTogether.CoderoomControllerTest do
     :timer.sleep(1000)
     response = post(conn, "/api/coderooms/start", %{id: id}) |> json_response(200)
     assert response["success"] == "Coderoom already running"
+    spawn fn ->
+      :os.cmd 'docker stop $(docker ps -a -q)'
+    end
   end
 
 end

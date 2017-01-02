@@ -1,6 +1,6 @@
 defmodule CodeTogether.RoomWatcher do
   use GenServer
-  alias CodeTogether.CodeRoom
+  alias CodeTogether.Coderoom
 
   def start_link do
     GenServer.start_link __MODULE__, %{}
@@ -12,7 +12,7 @@ defmodule CodeTogether.RoomWatcher do
   end
 
   def handle_info :work, state do
-    CodeRoom.close_inactive_rooms
+    Coderoom.close_inactive_rooms
     schedule_work
     {:noreply, state}
   end

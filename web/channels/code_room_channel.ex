@@ -1,70 +1,70 @@
-defmodule CodeTogether.CodeRoomChannel do
+defmodule CodeTogether.CoderoomChannel do
   use Phoenix.Channel
-  alias CodeTogether.CodeRoom
+  alias CodeTogether.Coderoom
   require Logger
 
   intercept [
-    "code_room:code_update",
-    "code_room:output_update",
-    "code_room:not_ready",
-    "code_room:ready"
+    "coderoom:code_update",
+    "coderoom:output_update",
+    "coderoom:not_ready",
+    "coderoom:ready"
   ]
 
-  def join("code_room:connect", %{"code_room_id" => code_room_id}, socket) do
-    socket = assign(socket, :code_room_id, code_room_id)
+  def join("coderoom:connect", %{"coderoom_id" => coderoom_id}, socket) do
+    socket = assign(socket, :coderoom_id, coderoom_id)
     {:ok, socket}
   end
 
   def terminate(_reason, socket) do
     leaving_user = socket.assigns[:username]
-    socket.assigns[:code_room_id]
-    |> CodeRoom.get
-    |> CodeRoom.handle_leaving_user(leaving_user, socket)
+    socket.assigns[:coderoom_id]
+    |> Coderoom.get_by
+    |> Coderoom.handle_leaving_user(leaving_user, socket)
   end
 
-  def handle_in("code_room:prepare", %{"username" => username}, socket) do
+  def handle_in("coderoom:prepare", %{"username" => username}, socket) do
     socket = assign(socket, :username, username)
-    socket.assigns[:code_room_id]
-    |> CodeRoom.get
-    |> CodeRoom.notify_when_running(socket)
-    |> CodeRoom.add_user_and_notify_if_new(username, socket)
+    socket.assigns[:coderoom_id]
+    |> Coderoom.get_by
+    |> Coderoom.notify_when_running(socket)
+    |> Coderoom.add_user_and_notify_if_new(username, socket)
     {:noreply, socket}
   end
 
-  def handle_in("code_room:new_code", %{"code" => code, "username" => username}, socket) do
-    code_room_id = socket.assigns[:code_room_id]
-    data = %{code: code, code_room_id: code_room_id, username: username}
-    broadcast! socket, "code_room:code_update", data
-    CodeRoom.get(code_room_id)
-    |> CodeRoom.update(%{code: code})
+  def handle_in("coderoom:new_code", %{"code" => code, "username" => username}, socket) do
+    coderoom_id = socket.assigns[:coderoom_id]
+    data = %{code: code, coderoom_id: coderoom_id, username: username}
+    broadcast! socket, "coderoom:code_update", data
+    Coderoom.get_by(coderoom_id)
+    |> Coderoom.update(%{code: code})
     {:noreply, socket}
   end
 
-  def handle_in("code_room:new_chat", %{"new_chat" => new_chat}, socket) do
-    code_room_id = socket.assigns[:code_room_id]
-    code_room = CodeRoom.get(code_room_id)
-    updated_chat = (code_room.chat <> "\n" <> new_chat) |> CodeRoom.truncate
-    broadcast! socket, "code_room:chat_update", %{chat: updated_chat}
-    CodeRoom.update(code_room, %{chat: updated_chat})
+  def handle_in("coderoom:new_chat", %{"new_chat" => new_chat}, socket) do
+    coderoom_id = socket.assigns[:coderoom_id]
+    coderoom = Coderoom.get_by(coderoom_id)
+    updated_chat = (coderoom.chat <> "\n" <> new_chat) |> Coderoom.truncate
+    broadcast! socket, "coderoom:chat_update", %{chat: updated_chat}
+    Coderoom.update(coderoom, %{chat: updated_chat})
     {:noreply, socket}
   end
 
   def handle_out(room_and_topic, payload, socket) do
-    user_code_room_id = socket.assigns[:code_room_id]
-    if payload.code_room_id == user_code_room_id do
+    user_coderoom_id = socket.assigns[:coderoom_id]
+    if payload.coderoom_id == user_coderoom_id do
       push socket, room_and_topic, payload
     end
     {:noreply, socket}
   end
 
-  def handle_in("code_room:run", %{"code" => code}, socket) do
-    code_room_id = socket.assigns[:code_room_id]
-    code_room = CodeRoom.get code_room_id
-    result = CodeRoom.result_for(code_room, code)
-    updated_output = CodeRoom.truncate(code_room.output <> "\n" <> result)
-    broadcast! socket, "code_room:output_update", %{output: updated_output, code_room_id: code_room_id}
-    unless CodeRoom.docker_is_running?(code_room), do: CodeRoom.reset_and_notify(code_room, socket)
-    CodeRoom.update(code_room, %{output: updated_output})
+  def handle_in("coderoom:run", %{"code" => code}, socket) do
+    coderoom_id = socket.assigns[:coderoom_id]
+    coderoom = Coderoom.get_by coderoom_id
+    result = Coderoom.result_for(coderoom, code)
+    updated_output = Coderoom.truncate(coderoom.output <> "\n" <> result)
+    broadcast! socket, "coderoom:output_update", %{output: updated_output, coderoom_id: coderoom_id}
+    unless Coderoom.docker_is_running?(coderoom), do: Coderoom.reset_and_notify(coderoom, socket)
+    Coderoom.update(coderoom, %{output: updated_output})
     {:noreply, socket}
   end
 

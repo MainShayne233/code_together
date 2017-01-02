@@ -1,6 +1,6 @@
 defmodule CodeTogether.CoderoomCase do
 
-  alias CodeTogether.{CodeRoom}
+  alias CodeTogether.{Coderoom}
 
   use ExUnit.CaseTemplate
 
@@ -35,7 +35,7 @@ defmodule CodeTogether.CoderoomCase do
 
   def create_coderoom(overwrite_params \\ %{}) do
     sample_coderoom_params(overwrite_params)
-    |> CodeRoom.create_coderoom
+    |> Coderoom.create
   end
 
 

@@ -1,5 +1,5 @@
 defmodule CodeTogether do
-  alias CodeTogether.CodeRoom
+  alias CodeTogether.Coderoom
   use Application
 
   def start(_type, _args) do
@@ -16,7 +16,7 @@ defmodule CodeTogether do
     ]
 
     # builds image to address any updates
-    CodeRoom.build_image!
+    Coderoom.build_image!
 
     opts = [strategy: :one_for_one, name: CodeTogether.Supervisor]
     Supervisor.start_link(children, opts)
