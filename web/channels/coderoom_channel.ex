@@ -35,10 +35,13 @@ defmodule CodeTogether.CoderoomChannel do
 
   def handle_in("coderoom:new_code", %{"code" => code, "username" => username}, socket) do
     coderoom_id = socket.assigns[:coderoom_id]
-    data = %{code: code, coderoom_id: coderoom_id, username: username}
+    updated_code = Coderoom.truncate(code)
+    IO.puts "truncated"
+    IO.inspect String.length(updated_code)
+    data = %{code: updated_code, coderoom_id: coderoom_id, username: username}
     broadcast! socket, "coderoom:code_update", data
     Coderoom.get_by(%{id: coderoom_id})
-    |> Coderoom.update(%{code: code})
+    |> Coderoom.update(%{code: updated_code})
     {:noreply, socket}
   end
 
@@ -63,7 +66,7 @@ defmodule CodeTogether.CoderoomChannel do
     coderoom_id = socket.assigns[:coderoom_id]
     coderoom = Coderoom.get_by(%{id: coderoom_id})
     result = Coderoom.result_for(coderoom, code)
-    updated_output = Coderoom.truncate(coderoom.output <> "\n" <> result)
+    updated_output = Coderoom.truncate(coderoom.output <> "\n" <> result) |> IO.inspect
     broadcast! socket, "coderoom:output_update", %{output: updated_output, coderoom_id: coderoom_id}
     unless Coderoom.docker_is_running?(coderoom), do: Coderoom.reset_and_notify(coderoom, socket)
     Coderoom.update(coderoom, %{output: updated_output})

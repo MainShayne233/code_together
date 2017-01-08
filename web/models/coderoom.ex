@@ -140,7 +140,8 @@ defmodule CodeTogether.Coderoom do
   def truncate(output) do
     character_count = String.length output
     if character_count > max_output_char_count do
-      String.slice(output, character_count - max_output_char_count, character_count)
+      output
+      |> String.slice(character_count - max_output_char_count, character_count)
     else
       output
     end

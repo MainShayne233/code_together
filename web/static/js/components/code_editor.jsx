@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import CodeMirror from 'codemirror'
 
+const maxCharacterCount = 100000
+
 export default class CodeEditor extends Component {
 
   static defaultProps = {
@@ -44,10 +46,8 @@ export default class CodeEditor extends Component {
 
   handleRunCode() {
     const {channel} = this.props
-    const {codeMirror} = this.state
-    const code = codeMirror.getValue()
     channel.push('coderoom:run', {
-      code: code,
+      code: this.currentCode(),
     })
   }
 
@@ -93,6 +93,7 @@ export default class CodeEditor extends Component {
         >
         <textarea
           ref='codeMirror'
+          maxLength={maxCharacterCount}
           >
         </textarea>
       </div>

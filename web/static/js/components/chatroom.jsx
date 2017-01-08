@@ -55,6 +55,7 @@ export default class Chatroom extends Component {
         style={{height: this.props.height}} ref='chatroomContainer'
         className='ui raised segment'
         >
+        <h3>Chat</h3>
         <div
           ref='chat'
           className='ui segment'

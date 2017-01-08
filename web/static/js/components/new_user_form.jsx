@@ -3,21 +3,41 @@ import { createNewUser }  from '../utils/api'
 
 export default class NewUserForm extends Component {
 
+  constructor(props) {
+    super(props)
+    this.state = {
+      errors: [],
+    }
+  }
+
 
   handleSubmit(event) {
     event.preventDefault()
     const username = this.refs.username.value
     createNewUser(username).then(response => {
-      if (response.error) {
-        this.handleError(response.error)
+      if (response.data.errors) {
+        this.handleErrors(response.data.errors)
       } else {
         this.props.handleNewUser()
       }
     })
   }
 
-  handleError(error) {
-    console.log(error)
+  handleErrors(errors) {
+    this.setState({
+      errors: errors,
+    })
+  }
+
+  renderErrors() {
+    if (this.state.errors.length) {
+      const errors = this.state.errors.map((error, index) => {
+        return <li key={index}>{error}</li>
+      })
+      return <ul>{errors}</ul>
+    } else {
+      return null
+    }
   }
 
   render() {
@@ -34,6 +54,7 @@ export default class NewUserForm extends Component {
             <div className="field "></div>
             <div className="field ui raised segment">
               <h2 style={{textAlign: 'center'}}>Choose a username</h2>
+              {this.renderErrors()}
               <input
                 autoFocus={true}
                 ref="username"

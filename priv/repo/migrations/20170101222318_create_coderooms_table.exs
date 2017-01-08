@@ -6,9 +6,9 @@ defmodule CodeTogether.Repo.Migrations.CreateCoderoomsTable do
       add :language,      :string
       add :name,          :string
       add :private_key,   :string
-      add :code,          :string
-      add :output,        :string
-      add :chat,          :string
+      add :code,          :text
+      add :output,        :text
+      add :chat,          :text
       add :docker_name,   :string
       add :port,          :integer
       add :current_users, {:array, :string}
