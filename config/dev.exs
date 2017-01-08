@@ -35,8 +35,8 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :code_together, CodeTogether.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
-  database: "code_together_dev",
-  hostname: "localhost",
+  username: System.get_env("PG_USERNAME") || "postgres",
+  password: System.get_env("PG_PASSWORD") || "postgres",
+  hostname: System.get_env("PG_HOST")     || "localhost",
+  database: "quotelane_dev",
   pool_size: 10
