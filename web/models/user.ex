@@ -31,7 +31,6 @@ defmodule CodeTogether.User do
           |> Enum.map(fn {field, {error, _}} -> "#{field} #{error}" end)
         }
     end
-    |> IO.inspect
   end
 
   def get(nil), do: {:error, "No username"}
