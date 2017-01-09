@@ -17,7 +17,6 @@ export default class NewCoderoomForm extends Component {
       .checkbox({
         onChange: () => this.state.privateChecked = !this.state.privateChecked
       })
-      .checkbox('check')
 
     $('.ui.small.modal')
       .modal({
@@ -99,7 +98,6 @@ export default class NewCoderoomForm extends Component {
               </div>
               <div style={{paddingTop: 18}} className="field">
                 <select ref='language' className='ui fluid dropdown'>
-                  <option value=''>Language</option>
                   <option value='ruby'>Ruby</option>
                 </select>
               </div>

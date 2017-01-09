@@ -32,6 +32,10 @@ export default class Chatroom extends Component {
     }
   }
 
+  textAreaRows() {
+    return 1 + parseInt(Number(this.props.height / 500).toFixed(0))
+  }
+
   renderChat() {
     return this.props.chat.split("\n").map((msg, index) => {
       const splitPoint = msg.indexOf(':')
@@ -48,18 +52,17 @@ export default class Chatroom extends Component {
     })
   }
 
-
   render() {
     return (
       <div
-        style={{height: this.props.height}} ref='chatroomContainer'
+        style={{height: 100 + this.props.height * 0.61}} ref='chatroomContainer'
         className='ui raised segment'
         >
         <h3>Chat</h3>
         <div
           ref='chat'
           className='ui segment'
-          style={{height: this.props.height * 0.75, overflowY: 'auto'}}
+          style={{height: this.props.height * 0.55, overflowY: 'auto'}}
           >
           {this.renderChat()}
         </div>
@@ -72,7 +75,7 @@ export default class Chatroom extends Component {
               placeholder="Type message here and press enter to send"
               onKeyDown={this.handleKeyUp.bind(this)}
               ref='chatInput'
-              rows={3}
+              rows={this.textAreaRows()}
               >
             </textarea>
           </div>

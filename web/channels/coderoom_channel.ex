@@ -7,7 +7,8 @@ defmodule CodeTogether.CoderoomChannel do
     "coderoom:code_update",
     "coderoom:output_update",
     "coderoom:not_ready",
-    "coderoom:ready"
+    "coderoom:ready",
+    "coderoom:chat_update",
   ]
 
   def join("coderoom:connect", %{"coderoom_id" => coderoom_id}, socket) do
@@ -49,7 +50,7 @@ defmodule CodeTogether.CoderoomChannel do
     coderoom_id = socket.assigns[:coderoom_id]
     coderoom = Coderoom.get_by(%{id: coderoom_id})
     updated_chat = (coderoom.chat <> "\n" <> new_chat) |> Coderoom.truncate
-    broadcast! socket, "coderoom:chat_update", %{chat: updated_chat}
+    broadcast! socket, "coderoom:chat_update", %{chat: updated_chat, coderoom_id: coderoom_id}
     Coderoom.update(coderoom, %{chat: updated_chat})
     {:noreply, socket}
   end

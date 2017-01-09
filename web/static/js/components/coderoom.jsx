@@ -21,6 +21,15 @@ export default class Coderoom extends Component {
     this.configure()
   }
 
+  componentWillUnmount() {
+    const channelTopics = [
+      'coderoom:update_users'
+    ]
+    for (const channelTopic of channelTopics) {
+      this.state.channel.off(channelTopic)
+    }
+  }
+
   configure() {
     window.addEventListener('resize', () => {
       this.setState({
@@ -137,6 +146,7 @@ export default class Coderoom extends Component {
                   channel={this.state.channel}
                   currentUser={this.state.currentUser}
                   height={this.state.height}
+                  width={this.state.width}
                 />
               </div>
             </div>
