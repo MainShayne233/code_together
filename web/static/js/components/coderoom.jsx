@@ -127,6 +127,7 @@ export default class Coderoom extends Component {
                   initialOutput={this.state.output}
                   channel={this.state.channel}
                   currentUser={this.state.currentUser}
+                  width={this.state.width}
                   height={this.state.height}
                 />
               </div>

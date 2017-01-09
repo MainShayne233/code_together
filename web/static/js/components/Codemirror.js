@@ -76,6 +76,7 @@ const CodeMirror = React.createClass({
 				}
 			}
 		}
+		if (this.props.anchorBottom) this.codeMirror.scrollTo(null, Infinity)
 		if (this.props.preserveCursorPosition) this.setCursorPosition(cursorPosition)
 	},
 	getCodeMirror () {
@@ -86,6 +87,9 @@ const CodeMirror = React.createClass({
 	},
 	setCursorPosition(cursor) {
 		return this.codeMirror.setCursor(cursor)
+	},
+	setSize(width, height) {
+		this.codeMirror.setSize(width, height)
 	},
 	focus () {
 		if (this.codeMirror) {

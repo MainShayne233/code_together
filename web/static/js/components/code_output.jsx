@@ -1,52 +1,61 @@
 import React, { Component } from 'react'
-import CodeMirror from 'codemirror'
+import CodeMirror from './Codemirror'
 
 export default class CodeOutput extends Component {
 
-  componentDidMount() {
-    this.configureCodeMirror()
-    this.configureChannel()
-    window.addEventListener('resize', () => {
-      this.state.codeMirror.setSize('99%', this.props.height)
-    })
-  }
+  // Lifecyle Functions
 
-  configureCodeMirror() {
-    let codeMirror = CodeMirror.fromTextArea(this.refs.codeMirror, {
-      lineNumbers: true,
-      lineWrapping: true,
-      indentUnit:  4,
-      tabSize:     4,
-      readOnly:    true,
-      theme: 'material',
-      mode: '',
-    })
-    codeMirror.setValue(this.props.initialOutput || '')
-    codeMirror.setSize('99%', this.props.height)
-    codeMirror.scrollTo(null, Infinity)
+  constructor(props) {
+    super(props)
+    this.configureChannel()
     this.state = {
-      codeMirror: codeMirror
+      output: props.initialOutput || ''
     }
   }
 
+  componentDidMount() {
+    this.refs.mirror.setSize(null, this.props.height * 0.7)
+  }
+
+  // Config Functions
+
   configureChannel() {
-    const {channel} = this.props
-    const {codeMirror} = this.state
+    const {channel, currentUser} = this.props
     channel.on("coderoom:output_update", data => {
-      const {output} = data
-      codeMirror.setValue(output)
-      codeMirror.scrollTo(null, Infinity)
+      if (data.username !== currentUser) {
+        const { mirror } = this.refs
+        this.setState({
+          output: data.output
+        })
+      }
     })
   }
 
+  // Render Helpers
+
+  codeMirrorOptions() {
+    return {
+      theme:        'material',
+      lineNumbers:  true,
+      lineWrapping: true,
+      readOnly:     true,
+      mode: 'shell'
+    }
+  }
+
+  // Render Functions
 
   render() {
     return (
-      <div>
-        <textarea
-          ref='codeMirror'
-          >
-        </textarea>
+      <div
+        style={{maxWidth: this.props.width / 2.5}}
+        >
+        <CodeMirror
+          ref='mirror'
+          value={this.state.output}
+          options={this.codeMirrorOptions()}
+          anchorBottom={true}
+        />
       </div>
     )
   }

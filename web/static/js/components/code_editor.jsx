@@ -17,9 +17,7 @@ export default class CodeEditor extends Component {
   }
 
   componentDidMount() {
-    const { mirror } = this.refs
-    const codeMirror = mirror.getCodeMirror()
-    codeMirror.setSize(null, this.props.height * 0.7)
+    this.refs.mirror.setSize(null, this.props.height * 0.7)
   }
 
   // Config Functions
@@ -70,6 +68,7 @@ export default class CodeEditor extends Component {
   codeMirrorOptions() {
     return {
       theme:        'material',
+      mode:         'ruby',
       lineNumbers:  true,
       lineWrapping: true,
       autofocus:    true,
@@ -86,7 +85,6 @@ export default class CodeEditor extends Component {
         <CodeMirror
           ref='mirror'
           value={this.state.code}
-          mode='ruby'
           options={this.codeMirrorOptions()}
           onChange={this.handleChange.bind(this)}
           onKeyDown={this.handleKeyDown.bind(this)}

@@ -12,7 +12,6 @@ defmodule CodeExeApi.Router.Homepage do
           post do
             case CodeExeApi.Execute.code(params) do
               {:ok, result} ->
-                IO.inspect result
                 conn |> put_status(200) |> json(%{result: result})
             end
             json conn, "hello"
