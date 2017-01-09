@@ -69,6 +69,7 @@ export default class Chatroom extends Component {
           >
           <div className='field'>
             <textarea
+              placeholder="Type message here and press enter to send"
               onKeyDown={this.handleKeyUp.bind(this)}
               ref='chatInput'
               rows={3}
