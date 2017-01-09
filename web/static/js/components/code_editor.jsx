@@ -1,101 +1,97 @@
 import React, { Component } from 'react'
-import CodeMirror from 'codemirror'
+// import CodeMirror from 'codemirror'
+import CodeMirror from './Codemirror'
 
 const maxCharacterCount = 100000
 
 export default class CodeEditor extends Component {
 
-  static defaultProps = {
-    code: ''
+  // Lifecyle Functions
+
+  constructor(props) {
+    super(props)
+    this.configureChannel()
+    this.state = {
+      code: props.initialCode || ''
+    }
   }
 
   componentDidMount() {
-    this.configureCodeMirror()
-    this.configureChannel()
-    window.addEventListener('resize', () => {
-      this.state.codeMirror.setSize('99%', this.props.height)
-    })
+    const { mirror } = this.refs
+    const codeMirror = mirror.getCodeMirror()
+    codeMirror.setSize(null, this.props.height * 0.7)
   }
 
-  configureCodeMirror() {
-    let codeMirror = CodeMirror.fromTextArea(this.refs.codeMirror, {
-      mode:        'text/x-ruby',
-      lineNumbers: true,
-      lineWrapping: true,
-      indentUnit:  2,
-      tabSize:     2,
-      theme: 'material',
-    })
-    codeMirror.setValue(this.props.initialCode || '')
-    codeMirror.setSize('99%', this.props.height)
-    this.state = {
-      codeMirror: codeMirror
-    }
-    if (this.props.cursorPosition) {
-      code_mirror.setCursor(this.props.cursorPosition)
-    }
-  }
+  // Config Functions
 
-  handleCodeUpdate(code) {
+  configureChannel() {
     const {channel, currentUser} = this.props
-    channel.push('coderoom:new_code', {
-      code: code,
-      username: currentUser,
+    channel.on("coderoom:code_update", data => {
+      if (data.username !== currentUser) {
+        const { mirror } = this.refs
+        this.setState({
+          code: data.code
+        })
+      }
     })
+  }
+
+  // Handler Functions
+
+  handleChange(code, change) {
+    const {channel, currentUser} = this.props
+    this.setState({
+      code: code,
+    }, () => {
+      channel.push('coderoom:new_code', {
+        code:     code,
+        username: currentUser,
+      })
+    })
+  }
+
+  handleKeyDown(codeMirror, event) {
+    if (event.keyCode === 13 && event.shiftKey) {
+      event.preventDefault()
+      this.handleRunCode()
+    }
   }
 
   handleRunCode() {
     const {channel} = this.props
+    const {code}    = this.state
     channel.push('coderoom:run', {
-      code: this.currentCode(),
+      code: code,
     })
   }
 
-  currentCode() {
-    return this.state.codeMirror.getValue()
+  // Render Helpers
+
+  codeMirrorOptions() {
+    return {
+      theme:        'material',
+      lineNumbers:  true,
+      lineWrapping: true,
+      autofocus:    true,
+    }
   }
 
-  currentCursorPosition() {
-    return this.state.codeMirror.getCursor()
-  }
-
-  configureChannel() {
-    const {channel, currentUser} = this.props
-    const {codeMirror} = this.state
-    codeMirror.on('keydown', (mirror, event) => {
-      if (event.shiftKey && event.code === 'Enter') {
-        this.handleRunCode()
-        event.preventDefault()
-      }
-    })
-    codeMirror.on('keyup', () => {
-      const code = codeMirror.getValue()
-      channel.push('coderoom:new_code', {
-        code: code,
-        username: currentUser,
-      })
-    })
-    channel.on("coderoom:code_update", data => {
-      const {code, username} = data
-      if (username !== this.props.currentUser) {
-        const code = data.code
-        const cursorPosition = codeMirror.getCursor()
-        codeMirror.setValue(code)
-        codeMirror.setCursor(cursorPosition)
-      }
-    })
-  }
-
+  // Render Functions
 
   render() {
     return (
       <div
+        style={{maxWidth: this.props.width / 2.5}}
         >
-        <textarea
-          ref='codeMirror'
-          maxLength={maxCharacterCount}
-          >
-        </textarea>
+        <CodeMirror
+          ref='mirror'
+          value={this.state.code}
+          mode='ruby'
+          options={this.codeMirrorOptions()}
+          onChange={this.handleChange.bind(this)}
+          onKeyDown={this.handleKeyDown.bind(this)}
+          preserveCursorPosition={true}
+        />
       </div>
     )
   }

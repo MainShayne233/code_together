@@ -14,7 +14,8 @@ export default class Coderoom extends Component {
     super(props)
     this.state = {
       channel: null,
-      height: window.innerHeight * 0.8,
+      height: window.innerHeight,
+      width:  window.innerWidth,
       showMessage: true,
     }
     this.configure()
@@ -23,7 +24,8 @@ export default class Coderoom extends Component {
   configure() {
     window.addEventListener('resize', () => {
       this.setState({
-        height: window.innerHeight * 0.8,
+        width:  window.innerWidth,
+        height: window.innerHeight,
       })
     })
     var getParams
@@ -115,6 +117,7 @@ export default class Coderoom extends Component {
                   initialCode={this.state.code}
                   channel={this.state.channel}
                   currentUser={this.state.currentUser}
+                  width={this.state.width}
                   height={this.state.height}
                 />
               </div>
